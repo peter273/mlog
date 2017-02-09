@@ -1,0 +1,11 @@
+Equipment:Equipment_Name
+Date:yyyy-mm-dd
+Shift:[1,2,3]
+Type,Activity,TimeStart,Other
+D,This,1
+S,That,2
+S,Those,5
+D,These,10
+A,Those,13
+S,These,17
+E,EndShift,23

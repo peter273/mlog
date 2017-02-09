@@ -1,0 +1,11 @@
+#example.py 
+from MineLog import Equipment
+from MineLog import ShiftFile
+
+#Creating and Saving Equipment
+x=Equipment("Name","Title")
+x.addFile(ShiftFile("test1.csv"))
+x.save()
+
+#Loading Equipment
+x = 

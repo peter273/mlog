@@ -1,0 +1,21 @@
+Equipment, Equipment_Name
+Date, dd/mm/yy
+Shift, [1,2,3]
+Type,Activity,TimeStart, Other
+D,This,1
+S,That,2
+S,Those,5
+D,These,10
+A,Those,13
+S,These,17
+E,EndShift,23
+
+
+Type: type of loss. 
+    D-Downtime Loss, 
+    S-Speed loss,IdleTime
+    P-Production,
+    E-End Shift
+Activity: title of activity
+TimeStart: time
+

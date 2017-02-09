@@ -1,0 +1,19 @@
+TODO-desktop software:
+Create a date sorter function for the ActivityData in Equipment.py  
+Create improved datageneration function for the dates - see datetime.datetime.now
+Create Function for Getting Time-Series Data for each ShiftFile
+Create a function for plotting that data - see matplotlib + pandas
+Create a function to compare to graphs - by equipment(filters shift, date etc)
+Create a visualization function to visualize a single shift
+Create a draft gui using kivy
+
+TODO-android app:
+Create Adapters - Scroll - New Activity this Practice
+
+
+DONE-desktop software:
+Create an improved datagenerator function
+Create a Load Function
+Creat Improve AddFile in Equipment.py - make sure it takes in a filepath
+Create Function for Reading ShiftFileDirectory in Equipment.py
+Improve the update function -- Removed the update function
