@@ -1,4 +1,5 @@
 import shutil
+import datetime
 import sys
 import os
 from random import choice
@@ -30,6 +31,7 @@ def GenerateTestData(Equipment,Date,Shift,activities_no):
 
 
 def GenerateCsvs(a,b,c=100,Foldername="datagenerator_output"):
+    # c indicates the number of activities in each shiftfile
     original_dir = os.getcwd()
     if c < 20: c=20
     try:
@@ -39,11 +41,13 @@ def GenerateCsvs(a,b,c=100,Foldername="datagenerator_output"):
     os.mkdir(Foldername)
     os.chdir(Foldername)
     
+    datelist = [datetime.datetime.today()+datetime.timedelta(k) for k in range(b)]
     for i in range(1,a+1):
-        for day in range(1,b+1):
+        for date in datelist:
             for shift in range(1,4):
-                with open("Equipment"+str(i)+"_Day"+str(day)+"_Shift"+str(shift)+".txt","w") as f:
-                    f.write(GenerateTestData(i,day,shift,c))
+                dateoutput="{0}-{1}-{2}".format(date.year,date.month,date.day)
+                with open("Equipment"+str(i)+"_"+dateoutput+"_Shift"+str(shift)+".txt","w") as f:
+                    f.write(GenerateTestData(i,dateoutput,shift,c))
     os.chdir(original_dir)
 
 try:
