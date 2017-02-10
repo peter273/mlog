@@ -2,14 +2,14 @@ from MineLog import Equipment,ShiftFile,mload
 import time
 
 start = time.time()
-x=Equipment("Equipment1")
+x=Equipment("Equipment")
 x.AddFileDir('/home/coy/MineLog/datagenerator_output')
 
 t1=time.time()
 x.save()
 
 t2=time.time()
-y=mload('Equipment1.mlog')
+y=mload('Equipment.mlog')
 
 t3=time.time()
 print("AddFileDir",t1-start)
