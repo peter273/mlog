@@ -1,9 +1,11 @@
 from MineLog import Equipment,ShiftFile,mload
+import os
 import time
+
 
 start = time.time()
 x=Equipment("Equipment")
-x.AddFileDir('/home/coy/MineLog/datagenerator_output')
+x.AddFileDir(os.path.join(os.getcwd(),'MineLog/datagenerator_output'))
 
 t1=time.time()
 x.save()
