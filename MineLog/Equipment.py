@@ -69,3 +69,4 @@ class Equipment:
         self.Name=Name
         self.save(filepath)
 
+
