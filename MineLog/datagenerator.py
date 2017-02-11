@@ -51,7 +51,7 @@ def GenerateCsvs(a,b,c=100,Foldername="datagenerator_output"):
     os.chdir(original_dir)
 
 try:
-    GenerateCsvs(int(sys.argv[1]),int(sys.argv[2]))
+    GenerateCsvs(int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]))
 except Exception as e:
     print("Usage: python3 datagenerator.py a b ")
     print("a = numberofEquipment")

@@ -1,27 +1,29 @@
 import pandas as pd
+import datetime
 from io import StringIO
 
 class ShiftFile:
     # Attributes:
-    #     Equipment,Date,Shift,data
+    #     Equipment,Date,Shift,data,selected
     #     Availability,Utilization,Efficiency,OEE
 
     def __init__(self,filename):
-        self.GetInformation(filename)
-        self.Evaluate()
+        self.getInformation(filename)
+        self.evaluate()
 
-    def GetInformation(self,filename):
+    def getInformation(self,filename):
         with open(filename,'r') as f:
             x=f.readlines()
 
         self.Equipment=x[0].replace("\n","").split(":")[1]
-        self.Date=x[1].replace("\n","").split(":")[1]
+        Date=x[1].replace("\n","").split(":")[1]
+        self.Date=datetime.datetime.strptime(Date,"%Y-%m-%d")
         self.Shift=x[2].replace("\n","").split(":")[1]
         self.data = pd.read_csv(StringIO("".join(x[3:])))
 
     # Calculates for Availability,Utilization,Efficiency,OEE
-    def Evaluate(self):
-        atime = self.GetActivityTime()
+    def evaluate(self):
+        atime = self.getactivitytime()
 
         totaltime = sum(atime['TimeInterval'])
         downtime,idletime = 0,0
@@ -45,7 +47,7 @@ class ShiftFile:
         self.OEE = oee
 
     # Gets activity-time interval from self.data
-    def GetActivityTime(self):
+    def getactivitytime(self):
         data=self.data
         start = data['TimeStart'][:-1]
         end = data['TimeStart'][1:]
@@ -57,11 +59,3 @@ class ShiftFile:
         activitytime = pd.DataFrame({'Type':atype,'Activity':activity,'TimeInterval':timeinterval})
         return activitytime
 
-# x=ShiftFile('test1.csv')
-# print(x.Availability)
-# print(x.Utilization)
-# print(x.Efficiency)
-# print(x.OEE)
-# print(x.Equipment)
-# print(x.Date)
-# print(x.Shift)

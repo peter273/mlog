@@ -1,3 +1,2 @@
-from .Equipment import Equipment
+from .Equipment import Equipment, mload
 from .ShiftFile import ShiftFile
-from .mutils import mload,sfsorted
