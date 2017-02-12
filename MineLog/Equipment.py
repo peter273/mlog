@@ -4,6 +4,7 @@ import pandas
 import datetime
 from os.path import join,isfile,basename
 from MineLog.ShiftFile import ShiftFile
+from MineLog.mplotting import oeeEquipmentPlot
 
 #loads file with extention .mlog as Equipment Class
 def mload(filepath):
@@ -56,6 +57,8 @@ class Equipment:
             # else:
             a[attrb].append(getattr(shiftfile,attrb))
         self.Data = self.Data.append(pandas.DataFrame.from_dict(a))
+
+
 
     # # TODO improve the RemoveFile function
     # def RemoveFile(self,Equipment,Date,Shift):

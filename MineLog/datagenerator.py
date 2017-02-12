@@ -48,11 +48,13 @@ def GenerateCsvs(a,b,c=100,Foldername="datagenerator_output"):
                 dateoutput="{0}-{1}-{2}".format(date.year,date.month,date.day)
                 with open("Equipment"+str(i)+"_"+dateoutput+"_Shift"+str(shift)+".txt","w") as f:
                     f.write(GenerateTestData(i,dateoutput,shift,c))
+
     os.chdir(original_dir)
 
 try:
     GenerateCsvs(int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]))
 except Exception as e:
+    print(e)
     print("Usage: python3 datagenerator.py a b ")
     print("a = numberofEquipment")
     print("b = numberofdays")

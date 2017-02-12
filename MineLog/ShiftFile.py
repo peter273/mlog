@@ -16,10 +16,15 @@ class ShiftFile:
             x=f.readlines()
 
         self.Equipment=x[0].replace("\n","").split(":")[1]
+
         Date=x[1].replace("\n","").split(":")[1]
         self.Date=datetime.datetime.strptime(Date,"%Y-%m-%d")
         self.Shift=x[2].replace("\n","").split(":")[1]
         self.data = pd.read_csv(StringIO("".join(x[3:])))
+
+        self.Date = self.Date + datetime.timedelta(hours=8*(int(self.Shift)-1))
+
+
 
     # Calculates for Availability,Utilization,Efficiency,OEE
     def evaluate(self):
