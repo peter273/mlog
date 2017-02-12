@@ -1,4 +1,5 @@
 from MineLog import Equipment,ShiftFile,mload
+import pandas
 import matplotlib.pyplot as plt
 import os
 import time
@@ -11,31 +12,42 @@ start = time.time()
 # x.save()
 
 y=mload('Equipment1.mlog')
+y.update()
+end= time.time()
+# print(end-start)
+
+# print(y.Data)
 end= time.time()
 print(end-start)
 
-print(y.Data)
-end= time.time()
-print(end-start)
-# print(y.Data.data.iloc[0])
+g=y.Data[['Shift','Date','Availability','Utilization','Efficiency','OEE']]
 
-# print(list(map(str,sfdata.Shift)))
-# print(sfdata['Availability'])
-# ax=sfdata["Availability"].plot(kind='bar',alpha=0.5)
-# label = [i.strftime("%b %d,%y")+" S"+str(j) for i,j in zip(sfdata.Date,sfdata.Shift)]
+def format_coord(x,y):
+    xid=int(x)
+    nx= g.Date.iloc[xid].strftime("%b %d,%Y")
+    shiftno=g.Shift.iloc[xid]
+    util=round(g.Utilization.iloc[xid],2)
+    avail=round(g.Availability.iloc[xid],2)
+    ef=round(g.Efficiency.iloc[xid],2)
+    oee=round(g.OEE.iloc[xid],2)
 
-# ax.set_xticklabels(label,rotation=20)
-# plt.show()
+    datestr='Date={0} Shift{1}\n'
+    availstr='Availability={2}%\n'
+    utilstr='Utilization={3}%\n'
+    efstr = 'Efficiency={4}%\n'
+    oeestr='OEE = {5}%'
 
-# print(type(sfdata.iloc[0].Date))
-# plt.plot(sf.iloc[0]
-# sfdata.plot.scatter(x='Date',y='Utilization')
-# plt.show()
+    out=''.join([datestr,availstr,utilstr,efstr,oeestr])
+    return out.format(nx,shiftno,avail,util,ef,oee)
+    
+fig,ax1=plt.subplots()
+ax1.format_coord = format_coord
+g.plot(ax=ax1)
+
+plt.legend(loc='best')
+plt.show()
 
 
-
-
-
-
+        
 
 

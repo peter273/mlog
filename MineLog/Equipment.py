@@ -41,7 +41,7 @@ class Equipment:
         with open(filepath+"/"+self.Name+".mlog",'wb') as f:
             pickle.dump(self,f)
     def update(self):
-        self.Data = self.Data.sort_values(by=["Shift","Date"]).reset_index(drop=True)
+        self.Data = self.Data.sort_values(by=["Date","Shift"]).reset_index(drop=True)
     def saveas(self,Name,filepath=os.getcwd()):
         self.Name=Name
         self.save(filepath)

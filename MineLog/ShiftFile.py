@@ -41,10 +41,10 @@ class ShiftFile:
         #This OEE has the same weights for availability, utilization and efficiency
         oee = availability*utilization*efficiency
 
-        self.Availability = availability
-        self.Utilization = utilization
-        self.Efficiency = efficiency
-        self.OEE = oee
+        self.Availability = round(availability *100,2)
+        self.Utilization = round(utilization * 100,2)
+        self.Efficiency = round(efficiency *100,2)
+        self.OEE = round(oee *100,2)
 
     # Gets activity-time interval from self.data
     def getactivitytime(self):
