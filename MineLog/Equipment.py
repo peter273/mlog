@@ -60,14 +60,14 @@ class Equipment:
 
 
 
-    # # TODO improve the RemoveFile function
-    # def RemoveFile(self,Equipment,Date,Shift):
-    #     index=None
-    #     for i in self.ActivityData:
-    #         if i.Equipment == Equipment and i.Date == Date and i.Shift == Shift:
-    #             index=self.ActivityData.index(i)
-    #             break
-    #     try:
-    #         del self.ActivityData[index]
-    #     except Exception as e:
-    #         pass
+# # TODO improve the RemoveFile function
+# def RemoveFile(self,Equipment,Date,Shift):
+#     index=None
+#     for i in self.ActivityData:
+#         if i.Equipment == Equipment and i.Date == Date and i.Shift == Shift:
+#             index=self.ActivityData.index(i)
+#             break
+#     try:
+#         del self.ActivityData[index]
+#     except Exception as e:
+#         pass

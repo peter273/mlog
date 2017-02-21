@@ -1,4 +1,4 @@
-from MineLog import Equipment,ShiftFile,mload, oeeEquipmentPlot
+from MineLog import Equipment,ShiftFile,mload, oeeEquipmentPlot,oeeEquipmentPlot1,param_plot
 import numpy as np
 import pandas
 from matplotlib import ticker
@@ -10,21 +10,7 @@ import os
 import pytz
 import time
 
-
-start = time.time()
-x=Equipment("Equipment1")
-x.AddFileFromDirectory(os.path.join(os.getcwd(),'MineLog/datagenerator_output'))
-x.update()
-x.save()
-
-y=mload('Equipment1.mlog')
-y.update()
-oeeEquipmentPlot(y)
-end= time.time()
-# print(end-start)
-
 # print(y.Data)
-end= time.time()
 
 
 # def format_coord(x,y):
@@ -107,8 +93,42 @@ end= time.time()
 # # ax1.format_xdata = mdates.DateFormatter('%b %d %Y')
 # # ax1.grid(True)
 
-
-
-
-
 # # print(end-start)
+
+
+
+start = time.time()
+x=Equipment("Equipment1")
+x.AddFileFromDirectory(os.path.join(os.getcwd(),'MineLog/datagenerator_output'))
+x.update()
+x.save()
+print(len(x.Data))
+
+
+x=Equipment("Equipment2")
+x.AddFileFromDirectory(os.path.join(os.getcwd(),'MineLog/datagenerator_output'))
+x.update()
+x.save()
+print(len(x.Data))
+
+x=Equipment("Equipment3")
+x.AddFileFromDirectory(os.path.join(os.getcwd(),'MineLog/datagenerator_output'))
+x.update()
+x.save()
+print(len(x.Data))
+
+y1=mload('Equipment1.mlog')
+y1.update()
+
+y2=mload('Equipment2.mlog')
+y2.update()
+
+y3=mload('Equipment3.mlog')
+y3.update()
+# oeeEquipmentPlot(y)
+param_plot([y1,y2,y3],'OEE')
+param_plot([y1,y2,y3],'Utilization')
+param_plot([y1,y2,y3],'Availability')
+
+end= time.time()
+print(end-start)

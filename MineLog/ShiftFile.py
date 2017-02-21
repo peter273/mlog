@@ -24,8 +24,6 @@ class ShiftFile:
 
         self.Date = self.Date + datetime.timedelta(hours=8*(int(self.Shift)-1))
 
-
-
     # Calculates for Availability,Utilization,Efficiency,OEE
     def evaluate(self):
         atime = self.getactivitytime()
