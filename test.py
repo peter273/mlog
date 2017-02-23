@@ -1,4 +1,4 @@
-from MineLog import Equipment,ShiftFile,mload, oeeEquipmentPlot,oeeEquipmentPlot1,param_plot
+from MineLog import Equipment,ShiftFile,mload, oeeEquipmentPlot,oeeEquipmentPlot1,param_plot,param_multiple_plot
 import numpy as np
 import pandas
 from matplotlib import ticker
@@ -98,24 +98,24 @@ import time
 
 
 start = time.time()
-x=Equipment("Equipment1")
-x.AddFileFromDirectory(os.path.join(os.getcwd(),'MineLog/datagenerator_output'))
-x.update()
-x.save()
-print(len(x.Data))
+# x=Equipment("Equipment1")
+# x.AddFileFromDirectory(os.path.join(os.getcwd(),'MineLog/datagenerator_output'))
+# x.update()
+# x.save()
+# print(len(x.Data))
 
 
-x=Equipment("Equipment2")
-x.AddFileFromDirectory(os.path.join(os.getcwd(),'MineLog/datagenerator_output'))
-x.update()
-x.save()
-print(len(x.Data))
+# x=Equipment("Equipment2")
+# x.AddFileFromDirectory(os.path.join(os.getcwd(),'MineLog/datagenerator_output'))
+# x.update()
+# x.save()
+# print(len(x.Data))
 
-x=Equipment("Equipment3")
-x.AddFileFromDirectory(os.path.join(os.getcwd(),'MineLog/datagenerator_output'))
-x.update()
-x.save()
-print(len(x.Data))
+# x=Equipment("Equipment3")
+# x.AddFileFromDirectory(os.path.join(os.getcwd(),'MineLog/datagenerator_output'))
+# x.update()
+# x.save()
+# print(len(x.Data))
 
 y1=mload('Equipment1.mlog')
 y1.update()
@@ -125,10 +125,11 @@ y2.update()
 
 y3=mload('Equipment3.mlog')
 y3.update()
-# oeeEquipmentPlot(y)
-param_plot([y1,y2,y3],'OEE')
-param_plot([y1,y2,y3],'Utilization')
+oeeEquipmentPlot(y1)
+# param_plot([y1,y2,y3],'OEE')
+# param_plot([y1,y2,y3],'Utilization')
 param_plot([y1,y2,y3],'Availability')
+param_multiple_plot([y1,y2,y3])
 
 end= time.time()
 print(end-start)

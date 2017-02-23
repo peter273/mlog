@@ -3,6 +3,7 @@
 import pandas
 from matplotlib import ticker
 import matplotlib.pyplot as plt
+plt.style.use('ggplot')
 
 
 #Plots the Utilization, Availability, Efficiency with respect to the dates
@@ -89,16 +90,42 @@ def oeeEquipmentPlot1(eq):
 def param_plot(eq_list,param):
     g={}
     fig,ax1=plt.subplots()
+    ax1.xaxis.label.set_visible(False)
+
     for i in eq_list:
         g[i.Name] = i.Data[['Date',param]]
         g[i.Name].index=g[i.Name]['Date']
-        # g[i.Name].plot(ax=ax1,title=param)
+
     g=pandas.Panel.from_dict(g)
-    g.minor_xs(param).plot(ax=ax1,title=param)
-    # print(g.minor_xs(param))
+    g=g.minor_xs(param)
+    g.plot(ax=ax1,title=param)
     plt.draw()
     plt.show()
+    return
+def param_multiple_plot(eq_list):
+    g={}
+    fig,ax=plt.subplots(2,2)
 
+    ax[0,0].xaxis.label.set_visible(False)
+    ax[0,1].xaxis.label.set_visible(False)
+    ax[1,0].xaxis.label.set_visible(False)
+    ax[1,1].xaxis.label.set_visible(False)
+    
+    for i in eq_list:
+        g[i.Name] = i.Data[['Date','OEE','Utilization','Availability','Efficiency']]
+        g[i.Name].index=g[i.Name]['Date']
 
+    g=pandas.Panel.from_dict(g)
+    g.minor_xs('Utilization').plot(ax=ax[0,0],title='Utilization')
+    g.minor_xs('Availability').plot(ax=ax[0,1],title='Availability')
+    g.minor_xs('Efficiency').plot(ax=ax[1,0],title='Efficiency')
+    g.minor_xs('OEE').plot(ax=ax[1,1],title='OEE')
+    plt.draw()
+    plt.tight_layout()
+    plt.show()
+
+def pi_shift_plot(sffile):
+    pass
+    
 
 
