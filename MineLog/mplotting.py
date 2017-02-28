@@ -87,22 +87,46 @@ def oeeEquipmentPlot1(eq):
     plt.draw()
     plt.legend(loc='best')
     plt.show()
-def param_plot(eq_list,param):
+
+#for param_plot and MovingAveragePlot
+def getPlot_data(eq_list,param):
     g={}
-    fig,ax1=plt.subplots()
-    ax1.xaxis.label.set_visible(False)
 
     for i in eq_list:
         g[i.Name] = i.Data[['Date',param]]
         g[i.Name].index=g[i.Name]['Date']
+    return pandas.Panel.from_dict(g)
+def param_plot(eq_list,param,marker='o'):
+    # g={}
+    # fig,ax1=plt.subplots()
+    # ax1.xaxis.label.set_visible(False)
 
-    g=pandas.Panel.from_dict(g)
+    # for i in eq_list:
+    #     g[i.Name] = i.Data[['Date',param]]
+    #     g[i.Name].index=g[i.Name]['Date']
+    # g=pandas.Panel.from_dict(g)
+    fig,ax1=plt.subplots()
+    ax1.xaxis.label.set_visible(False)
+
+    g=getPlot_data(eq_list,param)
     g=g.minor_xs(param)
-    g.plot(ax=ax1,title=param)
+    g.plot(ax=ax1,title=param,marker=marker)
     plt.draw()
     plt.show()
     return
-def param_multiple_plot(eq_list):
+# **kwargs are for plotting parameters
+def Moving_AveragePlot(eq_list,param,interval=2,marker='o',**kwargs):
+    fig,ax1=plt.subplots()
+    ax1.xaxis.label.set_visible(False)
+
+    g=getPlot_data(eq_list,param)
+    g=g.minor_xs(param).rolling(window=interval).mean()
+    g.plot(ax=ax1,title=param+"\n(Moving Average,interval={0})".format(interval),\
+            marker=marker,**kwargs)
+    plt.draw()
+    plt.show()
+
+def param_multiple_plot(eq_list,marker='o'):
     g={}
     fig,ax=plt.subplots(2,2)
 
@@ -116,14 +140,14 @@ def param_multiple_plot(eq_list):
         g[i.Name].index=g[i.Name]['Date']
 
     g=pandas.Panel.from_dict(g)
-    g.minor_xs('Utilization').plot(ax=ax[0,0],title='Utilization')
-    g.minor_xs('Availability').plot(ax=ax[0,1],title='Availability')
-    g.minor_xs('Efficiency').plot(ax=ax[1,0],title='Efficiency')
-    g.minor_xs('OEE').plot(ax=ax[1,1],title='OEE')
+    g.minor_xs('Utilization').plot(ax=ax[0,0],title='Utilization',marker=marker)
+    g.minor_xs('Availability').plot(ax=ax[0,1],title='Availability',marker=marker)
+    g.minor_xs('Efficiency').plot(ax=ax[1,0],title='Efficiency',marker=marker)
+    g.minor_xs('OEE').plot(ax=ax[1,1],title='OEE',marker=marker)
     plt.draw()
     plt.tight_layout()
     plt.show()
-
+#TODO Pie Chart Plot for shiftfile
 def pi_shift_plot(sffile):
     pass
     

@@ -1,0 +1,58 @@
+<EquipmentDataView>:
+    cols:1
+    height:self.minimum_height
+
+    canvas:
+        Color:
+            rgba:0.1,0.1,0.1,1
+        Rectangle:
+            pos:self.pos
+            size:self.size
+
+    Label:
+        size_hint_y:None
+        height:5*self.texture_size[1]
+        text:'Text Here'
+    Button:
+        height:self.texture_size[1]
+        text:'Text Here1'
+    Label:
+        height:self.texture_size[1]
+        text:'Text Here1'
+    Button:
+        height:self.texture_size[1]
+        text:'Text Here1'
+
+<EquipmentBoxLayout>:
+    BoxLayout:
+        orientation:'vertical'
+        size_hint_x:0.2
+        Label:
+            size_hint_y:None
+            height:1.5 * self.texture_size[1]
+            text:'Shovels'
+        RV:
+            id:test
+        Label:
+            size_hint_y:None
+            height:1.5 * self.texture_size[1]
+            text:'Truck'
+        RV:
+            id:test
+    EquipmentDataView:
+        id:eqDataView
+            
+
+MineLog:
+    orientation:'vertical'
+    EquipmentPanel:
+        do_default_tab:False
+        TabbedPanelItem:
+            text:'Equipment'
+            EquipmentBoxLayout:
+                id: eboxlyout
+                
+        TabbedPanelItem:
+            text:'tab2'
+            Button:
+                text:'test'
