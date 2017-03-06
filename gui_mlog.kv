@@ -1,58 +1,85 @@
-<EquipmentDataView>:
-    cols:1
-    height:self.minimum_height
-
-    canvas:
-        Color:
-            rgba:0.1,0.1,0.1,1
-        Rectangle:
-            pos:self.pos
-            size:self.size
-
-    Label:
-        size_hint_y:None
-        height:5*self.texture_size[1]
-        text:'Text Here'
-    Button:
-        height:self.texture_size[1]
-        text:'Text Here1'
-    Label:
-        height:self.texture_size[1]
-        text:'Text Here1'
-    Button:
-        height:self.texture_size[1]
-        text:'Text Here1'
-
 <EquipmentBoxLayout>:
+    eq_rv:eq_rv
+    #Sidebar
     BoxLayout:
         orientation:'vertical'
-        size_hint_x:0.2
-        Label:
-            size_hint_y:None
-            height:1.5 * self.texture_size[1]
-            text:'Shovels'
-        RV:
-            id:test
-        Label:
-            size_hint_y:None
-            height:1.5 * self.texture_size[1]
-            text:'Truck'
-        RV:
-            id:test
-    EquipmentDataView:
+        size_hint_x:0.3
+        padding:5
+        eq_rv:eq_rv
+
+        #Equipment List
+        BoxLayout:
+            orientation:'vertical'
+            canvas:
+                Color:
+                    rgba:.1,0.1,0.1,1
+                Rectangle:
+                    pos:self.pos
+                    size:self.size
+            Spinner:
+                text:'Shovels'
+                values:("Shovels","Trucks")
+                size_hint_y:None
+                height:2 * self.texture_size[1]
+            RV:
+                id:eq_rv
+                data:root.eq_rv_list
+        #Shift List of Equipment
+        BoxLayout:
+            orientation:'vertical'
+            Label:
+                size_hint_y:None
+                height:2 * self.texture_size[1]
+                text:'Shift Files'
+            RV:
+                id:shiftrv
+                data:root.shiftrv_data
+    #DataViewing
+    BoxLayout:
         id:eqDataView
-            
+        height:self.minimum_height
+        orientation:'vertical'
+        
+        canvas:
+            Color:
+                rgba:.1,0.1,0.1,1
+            Rectangle:
+                pos:self.pos
+                size:self.size
+        TabbedPanel:
+            tab_height:30
+            do_default_tab:False
+            #Viewing of Shift File and Plotting 
+            TabbedPanelItem:
+                text:'View'
+                Button:
+                    id:plot_btn
+                    text:"OEE Plot"
+                    on_press:root.eq_plot()
+            #Editing Data on Equipment and or ShiftFile
+            TabbedPanelItem:
+                text:'Edit'
+                BoxLayout:
+                    Button:
+                        text:"New Equipment"
+                    Button: 
+                        text:"Add Shift File"
+
+
 
 MineLog:
     orientation:'vertical'
     EquipmentPanel:
         do_default_tab:False
+        tab_height:30
         TabbedPanelItem:
             text:'Equipment'
             EquipmentBoxLayout:
-                id: eboxlyout
                 
         TabbedPanelItem:
-            text:'tab2'
+            text:'Compare'
             Button:
                 text:'test'
+        TabbedPanelItem:
+            text:'Help'
+

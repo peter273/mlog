@@ -7,7 +7,7 @@ plt.style.use('ggplot')
 
 
 #Plots the Utilization, Availability, Efficiency with respect to the dates
-def oeeEquipmentPlot(eq):
+def oeeEquipmentPlot(eq,marker='o'):
 
     def format_coord(x,y):
         xid=int(x)
@@ -42,9 +42,9 @@ def oeeEquipmentPlot(eq):
     ax1.xaxis.set_major_formatter(ticker.FuncFormatter(myformater))
     ax1.format_coord = format_coord
 
-    g.plot(ax=ax1)
-    plt.draw()
+    g.plot(ax=ax1,marker=marker,title=eq.Name)
     plt.legend(loc='best')
+    plt.draw()
     plt.show()
 
 def oeeEquipmentPlot1(eq):

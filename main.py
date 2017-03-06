@@ -1,6 +1,8 @@
+import MineLog as mlog
+from multiprocessing import Process
+
+
 import kivy
-
-
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.uix.recycleview import RecycleView
@@ -25,9 +27,25 @@ class MineLog(BoxLayout):
     pass
         
 class EquipmentBoxLayout(BoxLayout):
-    pass
-class EquipmentDataView(GridLayout):
-    pass
+    
+    y1=mlog.mload('Equipment1.mlog')
+    y2=mlog.mload('Equipment2.mlog')
+    y3=mlog.mload('Equipment3.mlog')
+
+    eq_list=[y1,y2,y3]
+    eq_rv=ObjectProperty(None)
+
+    eq_rv_list = [{'text': x.Name,'value':x } for x in eq_list] 
+    shiftrv_data = [{'text': "Truck"+str(x),'value':x} for x in range(20)] 
+    def eq_plot(self):
+        temp=self.eq_rv.view_adapter.views
+        for i in temp:
+            if temp[i].selected:
+                ind=temp[i].index
+                proc=Process(target=mlog.oeeEquipmentPlot,args=(self.eq_rv_list[ind]['value'],))
+                proc.start()
+
+    
 class EquipmentPanel(TabbedPanel):
     pass
 class MineLogApp(App):
