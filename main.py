@@ -38,12 +38,17 @@ class EquipmentBoxLayout(BoxLayout):
     eq_rv_list = [{'text': x.Name,'value':x } for x in eq_list] 
     shiftrv_data = [{'text': "Truck"+str(x),'value':x} for x in range(20)] 
     def eq_plot(self):
+        for i in self.eq_rv.data_model.__dict__:print(i)
+        # temp=self.eq_rv.data_model.last_len
         temp=self.eq_rv.view_adapter.views
         for i in temp:
             if temp[i].selected:
                 ind=temp[i].index
                 proc=Process(target=mlog.oeeEquipmentPlot,args=(self.eq_rv_list[ind]['value'],))
                 proc.start()
+    def new_eq(self):
+        pass
+
 
     
 class EquipmentPanel(TabbedPanel):
