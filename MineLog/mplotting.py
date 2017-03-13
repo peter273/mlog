@@ -7,25 +7,21 @@ plt.style.use('ggplot')
 
 
 #Plots the Utilization, Availability, Efficiency with respect to the dates
-def oeeEquipmentPlot(eq,marker='o'):
+def oeeEquipmentPlot(eq,iparams=['Availability','Utilization','Efficiency','OEE'],marker='o'):
 
     def format_coord(x,y):
         xid=int(x)
         nx= g.Date.iloc[xid].strftime("%b %d,%Y")
         shiftno=g.Shift.iloc[xid]
-        util=round(g.Utilization.iloc[xid],2)
-        avail=round(g.Availability.iloc[xid],2)
-        ef=round(g.Efficiency.iloc[xid],2)
-        oee=round(g.OEE.iloc[xid],2)
-        
-        datestr='Date={0} Shift{1}\n'
-        availstr='Av={2}% '
-        utilstr='Ut={3}% '
-        efstr = 'Ef={4}% '
-        oeestr='OEE = {5}% '
 
-        out=''.join([datestr,availstr,utilstr,efstr,oeestr])
-        return out.format(nx,shiftno,avail,util,ef,oee)
+        datestr='Date={0} Shift{1}\n'
+        p_val=[round(getattr(g,elem).iloc[xid],2) for elem in iparams]
+        p_str=[str_params[elem]+"={"+str(i+2)+"}% " for elem,i in zip(iparams,range(len(iparams)))]
+        t=[datestr]
+        t.extend(p_str)
+        return ''.join(t).format(nx,shiftno,*p_val)
+
+        
     def myformater(x,p):
         try:
             if g.Shift.iloc[int(x)] == '1':
@@ -37,7 +33,11 @@ def oeeEquipmentPlot(eq,marker='o'):
             # print(x)
             return ''
 
-    g=pandas.DataFrame(eq.Data[['Shift','Date','Availability','Utilization','Efficiency','OEE']])
+    str_params={'Availability':'Av','Utilization':'Ut','Efficiency':"Ef",'OEE':'OEE'}
+    params=['Shift','Date']
+    params.extend(iparams)
+
+    g=pandas.DataFrame(eq.Data[params])
     fig,ax1=plt.subplots()
     ax1.xaxis.set_major_formatter(ticker.FuncFormatter(myformater))
     ax1.format_coord = format_coord
@@ -89,11 +89,13 @@ def oeeEquipmentPlot1(eq):
     plt.show()
 
 #for param_plot and MovingAveragePlot
-def getPlot_data(eq_list,param):
+def getPlot_data(eq_list,*param):
     g={}
+    iparam=['Date']
+    iparam.extend(list(param))
 
     for i in eq_list:
-        g[i.Name] = i.Data[['Date',param]]
+        g[i.Name] = i.Data[iparam]
         g[i.Name].index=g[i.Name]['Date']
     return pandas.Panel.from_dict(g)
 def param_plot(eq_list,param,marker='o'):
@@ -116,13 +118,20 @@ def param_plot(eq_list,param,marker='o'):
     return
 # **kwargs are for plotting parameters
 def Moving_AveragePlot(eq_list,param,interval=2,marker='o',**kwargs):
-    fig,ax1=plt.subplots()
-    ax1.xaxis.label.set_visible(False)
-
-    g=getPlot_data(eq_list,param)
-    g=g.minor_xs(param).rolling(window=interval).mean()
-    g.plot(ax=ax1,title=param+"\n(Moving Average,interval={0})".format(interval),\
-            marker=marker,**kwargs)
+    g=getPlot_data(eq_list,"Availability","Utilization","Efficiency","OEE")
+    if len(param)>1:
+        fig,ax1=plt.subplots(len(param),1)
+        for i,par in enumerate(param):
+            k=g.minor_xs(par).rolling(window=interval).mean()
+            temp=k.plot(ax=ax1[i],title=par+" (rolling mean),I={0}".format(interval),marker=marker,**kwargs)
+            temp.xaxis.label.set_visible(False)
+    else:
+        fig,ax1=plt.subplots()
+        for i,par in enumerate(param):
+            k=g.minor_xs(par).rolling(window=interval).mean()
+            k.plot(ax=ax1,title=par+" (rolling mean),I={0}".format(interval),\
+                    marker=marker,**kwargs)
+    plt.subplots_adjust(hspace=.6)
     plt.draw()
     plt.show()
 

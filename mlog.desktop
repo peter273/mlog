@@ -1,0 +1,11 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Version=1.0
+Name=MineLog
+Exec=python3 /home/coy/Devel/mlog/mlog.py
+Icon=/home/coy/Devel/mlog/mlog.py
+Path=/home/coy/Devel/mlog
+Terminal=false
+Type=Application
+Categories=Utility;Application;
+
