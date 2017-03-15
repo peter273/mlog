@@ -36,7 +36,8 @@ class Equipment:
         if basename(SF).split("_")[0]==self.Name and isfile(SF):
             sf = ShiftFile(SF)
             self.AddData(sf)
-
+            return True
+        return False
     #TODO set the default saving directory
     def save(self,filepath=os.getcwd()):
         with open(filepath+"/"+self.Name+".mlog",'wb') as f:

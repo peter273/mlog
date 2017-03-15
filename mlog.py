@@ -31,7 +31,7 @@ def plot_Equipment(widget,builder):
     if check_oee.get_active(): params.append("OEE")
     x=eq_listbox.get_selected_rows()
     if x and params and not moving_bool and len(x)==1:
-        oeeEquipmentPlot(x[0].data,params)
+        oeeEquipmentPlot1(x[0].data,params)
     if moving_bool and x and params and interval>0:
         Moving_AveragePlot([t.data for t in x],params,interval=interval,marker='o')
 def toggle_select_mode(widget,builder):
@@ -58,7 +58,36 @@ def create_Neweq(w,builder):
 #Cancel New Equipment
 def cancel_Neweq(w,builder):
     neweq_dialog.hide()
+#Cancel Adding Shift
+def cancel_Addshift(w,builder):
+    addshift_dialog.hide()
+def add_shift2Equipment(w,builder):
+    file2add=shift_file_filechooserbutton1.get_filename()
+    selected_equipment_4addshift = eq_listbox.get_selected_rows()
+    try:
+        if selected_equipment_4addshift[0].data.AddFile(file2add): print("File Added")
+        selected_equipment_4addshift[0].data.update()
+        selected_equipment_4addshift[0].data.save(filepath)
+        # print(ShiftFile(file2add))
+        # print(selected_equipment_4addshift[0].data.Data)
+    except:
+        # TODO: Error Message Dialog box for this
+        print("ShiftFile not Added")
 
+    addshift_dialog.hide()
+# Open Add Shift Dialog
+def add_shift2Equipment_open_dialog(w,builder):
+    selected_equipment_4addshift = eq_listbox.get_selected_rows()
+    shift_file_filechooserbutton1.unselect_all()
+    temp= len(selected_equipment_4addshift)
+    if temp!=1:
+        messagedialog1.run()
+        messagedialog1.hide()
+    else:
+        temp_sel_eq= builder.get_object("label4")
+        temp_sel_eq.set_text("{0} is selected".format(selected_equipment_4addshift[0].data.Name))
+        addshift_dialog.run()
+        addshift_dialog.hide()
 # Open New Equipment Dialog
 def create_newEquipment(widget,builder):
     eq_title.set_text("")
@@ -109,9 +138,23 @@ create_eq_btn.connect("clicked",create_Neweq,builder)
 cancel_eq_btn=builder.get_object("cancel_create_btn")
 cancel_eq_btn.connect("clicked",cancel_Neweq,builder)
 
+# Add Shift button
+add_shift_btn = builder.get_object("add_shift_btn")
+add_shift_btn.connect("clicked",add_shift2Equipment_open_dialog,builder)
+
+# Add Shift Dialog
+messagedialog1 = builder.get_object("messagedialog1")
+addshift_dialog = builder.get_object("addshift_dialog")
+cancel_addshift_btn = builder.get_object("cancel_addshift_btn")
+cancel_addshift_btn.connect("clicked",cancel_Addshift,builder)
+add_shiftdialog_btn = builder.get_object("add_shiftdialog_btn")
+add_shiftdialog_btn.connect("clicked",add_shift2Equipment,builder)
+shift_file_filechooserbutton1 = builder.get_object("shift_file_filechooserbutton1")
+
 #Delete Equipment Button
 delete_equipment_btn = builder.get_object("delete_equipment")
 delete_equipment_btn.connect("clicked",delete_Equipment,builder)
+
 
 # Plotting
 plot_btn= builder.get_object("plot_btn")
