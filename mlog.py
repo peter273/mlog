@@ -20,7 +20,7 @@ def get_Equipment_list():
         eq=mload(os.path.join(filepath,i))
         # NOTE:eq.update()
         eq_list.append(eq)
-    return eq_list
+    return sorted(eq_list,key=lambda i:i.Name)
 def plot_Equipment(widget,builder):
     moving_bool=moving_ave_btn.get_active()
     interval=roll_mean_interval.get_value_as_int()
@@ -30,14 +30,13 @@ def plot_Equipment(widget,builder):
     if check_efficiency.get_active(): params.append("Efficiency")
     if check_oee.get_active(): params.append("OEE")
     x=eq_listbox.get_selected_rows()
-    if x and params and not moving_bool and len(x)==1:
-        oeeEquipmentPlot1(x[0].data,params)
+    if x and params and not moving_bool:
+        oeeEquipmentPlot1([t.data for t in x],params)
     if moving_bool and x and params and interval>0:
         Moving_AveragePlot([t.data for t in x],params,interval=interval,marker='o')
 def toggle_select_mode(widget,builder):
     mode={0:1,1:3}
     eq_listbox.set_selection_mode(mode[kind_plot.get_active()])
-    print("this")
 def delete_Equipment(widget,builder):
     x=eq_listbox.get_selected_row()
     if x:
@@ -47,14 +46,19 @@ def delete_Equipment(widget,builder):
 # Create New Equipment
 def create_Neweq(w,builder):
     name=eq_title.get_text()
+    fdir=filechooserbutton1_sfile_dir.get_filename()
     if name != "":
         cwd=os.getcwd()
         filepath= os.path.join(cwd,'Equipment')
         new_eq=Equipment(name)
+        if fdir:
+            new_eq.AddFileFromDirectory(filechooserbutton1_sfile_dir.get_filename())
+            new_eq.update()
         new_eq.save(filepath)
         eq_listbox.add(ListBoxRowWithData(new_eq))
         eq_listbox.show_all()
         neweq_dialog.hide()
+    
 #Cancel New Equipment
 def cancel_Neweq(w,builder):
     neweq_dialog.hide()
@@ -91,7 +95,7 @@ def add_shift2Equipment_open_dialog(w,builder):
 # Open New Equipment Dialog
 def create_newEquipment(widget,builder):
     eq_title.set_text("")
-
+    filechooserbutton1_sfile_dir.unselect_all()
     neweq_dialog.run()
     neweq_dialog.hide()
 
@@ -131,7 +135,7 @@ new_equipment_btn.connect("clicked",create_newEquipment,builder)
 #New Equipment Dialog
 neweq_dialog = builder.get_object("neweq_dialog")
 eq_title=builder.get_object("equip_title_entry")
-
+filechooserbutton1_sfile_dir = builder.get_object("filechooserbutton1_sfile_dir")
 create_eq_btn=builder.get_object("create_eq_btn")
 create_eq_btn.connect("clicked",create_Neweq,builder)
 

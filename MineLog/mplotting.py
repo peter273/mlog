@@ -47,19 +47,34 @@ def oeeEquipmentPlot(eq,iparams=['Availability','Utilization','Efficiency','OEE'
     plt.draw()
     plt.show()
 
-def oeeEquipmentPlot1(eq,iparams=['Availability','Utilization','Efficiency','OEE'],marker='o'):
-    params=['Date']
-    params.extend(iparams)
+def oeeEquipmentPlot1(eq_list,param,marker='o',**kwargs):
+    # params=['Date']
+    # params.extend(iparams)
 
-    g=pandas.DataFrame(eq.Data[params])
-    g.index=g['Date']
-    fig,ax1=plt.subplots()
+    # g=pandas.DataFrame(eq.Data[params])
+    # g.index=g['Date']
+    # fig,ax1=plt.subplots()
 
-    g.plot(ax=ax1,marker=marker,title=eq.Name)
-    plt.legend(loc='best')
+    # g.plot(ax=ax1,marker=marker,title=eq.Name)
+    # plt.legend(loc='best')
+    # plt.draw()
+    # plt.show()
+
+    g=getPlot_data(eq_list,"Availability","Utilization","Efficiency","OEE")
+    if len(param)>1:
+        fig,ax1=plt.subplots(len(param),1)
+        for i,par in enumerate(param):
+            k=g.minor_xs(par)
+            temp=k.plot(ax=ax1[i],title=par,marker=marker,**kwargs)
+            temp.xaxis.label.set_visible(False)
+    else:
+        fig,ax1=plt.subplots()
+        for i,par in enumerate(param):
+            k=g.minor_xs(par)
+            k.plot(ax=ax1,title=par,marker=marker,**kwargs)
+    plt.subplots_adjust(hspace=.6)
     plt.draw()
     plt.show()
-
 #for param_plot and MovingAveragePlot
 def getPlot_data(eq_list,*param):
     g={}

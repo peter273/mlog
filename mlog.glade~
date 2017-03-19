@@ -291,7 +291,7 @@
                         <property name="completion">entrycompletion2</property>
                         <property name="input_purpose">number</property>
                         <property name="adjustment">adjustment1</property>
-                        <property name="climb_rate">1</property>
+                        <property name="climb_rate">1.0000000002235174</property>
                         <property name="snap_to_ticks">True</property>
                         <property name="numeric">True</property>
                         <property name="update_policy">if-valid</property>

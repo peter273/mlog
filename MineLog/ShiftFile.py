@@ -13,14 +13,15 @@ class ShiftFile:
 
     def getInformation(self,filename):
         with open(filename,'r') as f:
-            x=f.readlines()
+            k=f.readlines()
+        x=[i.replace("\"","") for i in k]
 
-        self.Equipment=x[0].replace("\n","").split(":")[1]
-
-        Date=x[1].replace("\n","").split(":")[1]
-        self.Date=datetime.datetime.strptime(Date,"%Y-%m-%d")
-        self.Shift=x[2].replace("\n","").split(":")[1]
-        self.data = pd.read_csv(StringIO("".join(x[3:])))
+        self.Equipment=x[0].replace("\n","").split(",")[1]
+        self.EType=x[1].replace("\n","").split(",")[1]
+        Date=x[2].replace("\n","").split(",")[1]
+        self.Date=datetime.datetime.strptime(Date,"%Y%m%d")
+        self.Shift=x[3].replace("\n","").split(",")[1]
+        self.data = pd.read_csv(StringIO("".join(x[4:])))
 
         self.Date = self.Date + datetime.timedelta(hours=8*(int(self.Shift)-1))
 

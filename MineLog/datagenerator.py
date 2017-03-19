@@ -2,13 +2,14 @@ import shutil
 import datetime
 import sys
 import os
-from random import choice
+from random import choice 
 from random import randrange
 def GenerateTestData(Equipment,Date,Shift,activities_no):
 
-    out0 = "Equipment:"+ str(Equipment)+"\n"
-    out0+= "Date:"+ str(Date)+"\n" 
-    out0+= "Shift:"+ str(Shift)+"\n"
+    out0 = "Equipment,"+ str(Equipment)+"\n"
+    out0+= "Type,"+"Shovel"+"\n"
+    out0+= "Date,"+ str(Date)+"\n" 
+    out0+= "Shift,"+ str(Shift)+"\n"
 
     out=[["Type","Activity","TimeStart","Other"]]
     atype = ["D"]*2
