@@ -48,7 +48,7 @@ def create_Neweq(w,builder):
     name=eq_title.get_text()
     fdir=filechooserbutton1_sfile_dir.get_filename()
     if name != "":
-        cwd=os.getcwd()
+        cwd=os.path.dirname(__file__)
         filepath= os.path.join(cwd,'Equipment')
         new_eq=Equipment(name)
         if fdir:
