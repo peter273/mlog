@@ -6,22 +6,24 @@ from random import choice
 from random import randrange
 def GenerateTestData(Equipment,Date,Shift,activities_no):
 
-    out0 = "Equipment,"+ str(Equipment)+"\n"
-    out0+= "Type,"+"Shovel"+"\n"
-    out0+= "Date,"+ str(Date)+"\n" 
-    out0+= "Shift,"+ str(Shift)+"\n"
+    out0 = '"Equipment",'+'"{0}"'.format(str(Equipment))+"\n"
+    out0+= '"Type",'+'"Shovel"'+"\n"
+    out0+= '"Date,"'+ '"{0}"'.format(str(Date))+"\n" 
+    out0+= '"Shift,"'+ '"{0}"'.format(str(Shift))+"\n"
 
-    out=[["Type","Activity","TimeStart","Other"]]
-    atype = ["D"]*2
-    atype.extend(["P"]*10)
-    atype.extend(["S"]*5)
+    out=[['"Type"','"Activity"','Time Start','"Other"']]
+    atype = ['"D"']*2
+    atype.extend(['"P"']*10)
+    atype.extend(['"S"']*5)
 
 
-    out.append([choice(atype),"Activity1",0," "])
+    out.append([choice(atype),'"Activity"',0," "])
     for i in range(2,activities_no+1):
-        out.append([choice(atype),"Activity"+str(i),out[i-1][2]+randrange(6,12)," "])
-    out.append(["E","EndShift",out[-1][2]+randrange(6,28)," "])
+        out.append([choice(atype),'"Activity {0}"'.format(str(i)),out[i-1][2]+randrange(6,12)," "])
+    out.append(['"E"','"EndShift"',out[-1][2]+randrange(6,28)," "])
 
+    for i in out:
+        i[2] = '"{0}"'.format(i[2])
     out= [map(str,i) for i in out]
 
     out = [",".join(i) for i in out]
@@ -46,17 +48,21 @@ def GenerateCsvs(a,b,c=100,Foldername="datagenerator_output"):
     for i in range(1,a+1):
         for date in datelist:
             for shift in range(1,4):
-                dateoutput="{0}-{1}-{2}".format(date.year,date.month,date.day)
+                if date.month<10:
+                    dmonth="0{0}".format(date.month)
+                else:
+                    dmonth=date.month
+                dateoutput="{0}{1}{2}".format(date.year,dmonth,date.day)
                 with open("Equipment"+str(i)+"_"+dateoutput+"_Shift"+str(shift)+".txt","w") as f:
                     f.write(GenerateTestData(i,dateoutput,shift,c))
 
     os.chdir(original_dir)
 
-try:
-    GenerateCsvs(int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]))
-except Exception as e:
-    print(e)
-    print("Usage: python3 datagenerator.py a b ")
-    print("a = numberofEquipment")
-    print("b = numberofdays")
-    print("Total number of files generated = 3*a*b")
+GenerateCsvs(int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]))
+# try:
+# except Exception as e:
+#     print(e)
+#     print("Usage: python3 datagenerator.py a b ")
+#     print("a = numberofEquipment")
+#     print("b = numberofdays")
+#     print("Total number of files generated = 3*a*b")

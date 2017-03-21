@@ -1,0 +1,26 @@
+"Equipment","2"
+"Type","Shovel"
+"Date,""20170320"
+"Shift,""2"
+"Type","Activity","Time Start","Other"
+"P","Activity","0", 
+"P","Activity 2","7", 
+"S","Activity 3","14", 
+"P","Activity 4","25", 
+"P","Activity 5","31", 
+"P","Activity 6","42", 
+"P","Activity 7","50", 
+"P","Activity 8","57", 
+"P","Activity 9","64", 
+"P","Activity 10","71", 
+"P","Activity 11","78", 
+"S","Activity 12","88", 
+"P","Activity 13","98", 
+"P","Activity 14","108", 
+"S","Activity 15","115", 
+"P","Activity 16","124", 
+"S","Activity 17","135", 
+"S","Activity 18","143", 
+"S","Activity 19","149", 
+"P","Activity 20","159", 
+"E","EndShift","174", 

@@ -1,4 +1,4 @@
-from MineLog import Equipment,ShiftFile,mload, oeeEquipmentPlot,oeeEquipmentPlot1,param_plot,param_multiple_plot,Moving_AveragePlot
+from MineLog import Equipment,ShiftFile,mload, oeeEquipmentPlot,Moving_AveragePlot
 # import numpy as np
 # import pandas
 # from matplotlib import ticker
@@ -10,15 +10,17 @@ import os
 # import pytz
 
 import time
+import matplotlib
+from matplotlib import pyplot as plt
 
 equipment_file_location=os.path.join(os.getcwd(),'Equipment')
 
 start = time.time()
-for i in range(1,16):
-    x=Equipment("Equipment{0}".format(i))
-    x.AddFileFromDirectory(os.path.join(os.getcwd(),'MineLog/datagenerator_output'))
-    x.update()
-    x.save(equipment_file_location)
+# for i in range(1,16):
+#     x=Equipment("Equipment{0}".format(i))
+#     x.AddFileFromDirectory(os.path.join(os.getcwd(),'MineLog/datagenerator_output'))
+#     x.update()
+#     x.save(equipment_file_location)
 # print(len(x.Data))
 
 
@@ -28,6 +30,8 @@ for i in range(1,16):
 # x.save(equipment_file_location)
 # print(len(x.Data))
 
+
+# x.data.iloc[1]
 # x=Equipment("Equipment3")
 # x.AddFileFromDirectory(os.path.join(os.getcwd(),'MineLog/datagenerator_output'))
 # x.update()
@@ -40,8 +44,15 @@ for i in range(1,16):
 # y2=mload(os.path.join(equipment_file_location,'Equipment2.mlog'))
 # y2.update()
 
-# y3=mload(os.path.join(equipment_file_location,'Equipment3.mlog'))
-# y3.update()
+y3=mload(os.path.join(equipment_file_location,'Equipment3.mlog'))
+y3.update()
+
+#month
+# returns (year,month)
+# print(b.iloc[1].name)
+
+
+plt.show()
 
 # #NOTE Plotting Singe Equipment
 # # oeeEquipmentPlot(y1)

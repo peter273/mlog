@@ -9,7 +9,7 @@ from MineLog import Equipment,ShiftFile,mload,oeeEquipmentPlot,oeeEquipmentPlot1
 
 import os
 
-cwd=os.getcwd()
+cwd=os.path.dirname(__file__)
 filepath= os.path.join(cwd,'Equipment')
 
 def get_Equipment_list():

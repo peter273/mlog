@@ -1,66 +1,13 @@
 # from MineLog.Equipment import Equipment,mload
 # from MineLog.ShiftFile import ShiftFile
 import pandas
+import datetime
 from matplotlib import ticker
 import matplotlib.pyplot as plt
 plt.style.use('ggplot')
 
-
-#Plots the Utilization, Availability, Efficiency with respect to the dates
-def oeeEquipmentPlot(eq,iparams=['Availability','Utilization','Efficiency','OEE'],marker='o'):
-
-    def format_coord(x,y):
-        xid=int(x)
-        nx= g.Date.iloc[xid].strftime("%b %d,%Y")
-        shiftno=g.Shift.iloc[xid]
-
-        datestr='Date={0} Shift{1}\n'
-        p_val=[round(getattr(g,elem).iloc[xid],2) for elem in iparams]
-        p_str=[str_params[elem]+"={"+str(i+2)+"}% " for elem,i in zip(iparams,range(len(iparams)))]
-        t=[datestr]
-        t.extend(p_str)
-        return ''.join(t).format(nx,shiftno,*p_val)
-
-        
-    def myformater(x,p):
-        try:
-            if g.Shift.iloc[int(x)] == '1':
-                return g.Date.iloc[int(x)].strftime('%b %d')
-                # return str(g.Date.iloc[int(x)].month)+str(g.Date.iloc[int(x)].day)
-            else:
-                return ''
-        except:
-            # print(x)
-            return ''
-
-    str_params={'Availability':'Av','Utilization':'Ut','Efficiency':"Ef",'OEE':'OEE'}
-    params=['Shift','Date']
-    params.extend(iparams)
-
-    g=pandas.DataFrame(eq.Data[params])
-    fig,ax1=plt.subplots()
-    ax1.xaxis.set_major_formatter(ticker.FuncFormatter(myformater))
-    ax1.format_coord = format_coord
-
-    g.plot(ax=ax1,marker=marker,title=eq.Name)
-    plt.legend(loc='best')
-    plt.draw()
-    plt.show()
-
-def oeeEquipmentPlot1(eq_list,param,marker='o',**kwargs):
-    # params=['Date']
-    # params.extend(iparams)
-
-    # g=pandas.DataFrame(eq.Data[params])
-    # g.index=g['Date']
-    # fig,ax1=plt.subplots()
-
-    # g.plot(ax=ax1,marker=marker,title=eq.Name)
-    # plt.legend(loc='best')
-    # plt.draw()
-    # plt.show()
-
-    g=getPlot_data(eq_list,"Availability","Utilization","Efficiency","OEE")
+def oeeEquipmentPlot(eq_list,param=['OEE'],data_frame='shiftly',marker='o',**kwargs):
+    g=getPlot_data(eq_list,data_frame,"Availability","Utilization","Efficiency","OEE")
     if len(param)>1:
         fig,ax1=plt.subplots(len(param),1)
         for i,par in enumerate(param):
@@ -75,37 +22,10 @@ def oeeEquipmentPlot1(eq_list,param,marker='o',**kwargs):
     plt.subplots_adjust(hspace=.6)
     plt.draw()
     plt.show()
-#for param_plot and MovingAveragePlot
-def getPlot_data(eq_list,*param):
-    g={}
-    iparam=['Date']
-    iparam.extend(list(param))
 
-    for i in eq_list:
-        g[i.Name] = i.Data[iparam]
-        g[i.Name].index=g[i.Name]['Date']
-    return pandas.Panel.from_dict(g)
-def param_plot(eq_list,param,marker='o'):
-    # g={}
-    # fig,ax1=plt.subplots()
-    # ax1.xaxis.label.set_visible(False)
-
-    # for i in eq_list:
-    #     g[i.Name] = i.Data[['Date',param]]
-    #     g[i.Name].index=g[i.Name]['Date']
-    # g=pandas.Panel.from_dict(g)
-    fig,ax1=plt.subplots()
-    ax1.xaxis.label.set_visible(False)
-
-    g=getPlot_data(eq_list,param)
-    g=g.minor_xs(param)
-    g.plot(ax=ax1,title=param,marker=marker)
-    plt.draw()
-    plt.show()
-    return
 # **kwargs are for plotting parameters
-def Moving_AveragePlot(eq_list,param,interval=2,marker='o',**kwargs):
-    g=getPlot_data(eq_list,"Availability","Utilization","Efficiency","OEE")
+def Moving_AveragePlot(eq_list,param,data_frame="shiftly",interval=2,marker='o',**kwargs):
+    g=getPlot_data(eq_list,data_frame,"Availability","Utilization","Efficiency","OEE")
     if len(param)>1:
         fig,ax1=plt.subplots(len(param),1)
         for i,par in enumerate(param):
@@ -121,28 +41,62 @@ def Moving_AveragePlot(eq_list,param,interval=2,marker='o',**kwargs):
     plt.subplots_adjust(hspace=.6)
     plt.draw()
     plt.show()
-
-def param_multiple_plot(eq_list,marker='o'):
+#for oeeEquipmentPlot and MovingAveragePlot
+def getPlot_data(eq_list,data_frame='shiftly',*param):
     g={}
-    fig,ax=plt.subplots(2,2)
+    iparam=['Date']
+    iparam.extend(list(param))
 
-    ax[0,0].xaxis.label.set_visible(False)
-    ax[0,1].xaxis.label.set_visible(False)
-    ax[1,0].xaxis.label.set_visible(False)
-    ax[1,1].xaxis.label.set_visible(False)
-    
     for i in eq_list:
-        g[i.Name] = i.Data[['Date','OEE','Utilization','Availability','Efficiency']]
-        g[i.Name].index=g[i.Name]['Date']
+        g[i.Name] = get_tframe(i,data_frame,list(param))
+        # g[i.Name] = i.Data[iparam]
+        # g[i.Name].index=g[i.Name]['Date']
+    return pandas.Panel.from_dict(g)
 
-    g=pandas.Panel.from_dict(g)
-    g.minor_xs('Utilization').plot(ax=ax[0,0],title='Utilization',marker=marker)
-    g.minor_xs('Availability').plot(ax=ax[0,1],title='Availability',marker=marker)
-    g.minor_xs('Efficiency').plot(ax=ax[1,0],title='Efficiency',marker=marker)
-    g.minor_xs('OEE').plot(ax=ax[1,1],title='OEE',marker=marker)
-    plt.draw()
-    plt.tight_layout()
-    plt.show()
+def get_tframe(eq,data_frame='shiftly',params=["Availability","Utilization","Efficiency","OEE"]):
+    g=eq.Data
+    tframe={"week":[],"day":[],"month":[],"year":[]}
+    for index,row in g['Date'].iteritems():
+        tframe['week'].append(row.isocalendar()[1])
+        tframe['month'].append(row.month)
+        tframe['year'].append(row.year)
+        tframe['day'].append(row.day)
+    for i in tframe:
+        g[i]=pandas.Series(tframe[i])
+    g=g.drop(['EType','data'],axis=1)
+
+    if data_frame=='daily':
+        daily=g.groupby(['year','month','day']).mean()[params]
+        daily_index={'Date':[]}
+        for i in daily.index:
+            daily_index['Date'].append(datetime.datetime(*i))
+        daily.index=pandas.DataFrame(daily_index)['Date']
+        return daily
+    elif data_frame=='weekly':
+        weekly=g.groupby(['year','week']).mean()[params]
+        weekly_index={'Date':[]}
+        for i in weekly.index:
+            k=isocal_to_date(*i,1)
+            weekly_index['Date'].append(isocal_to_date(*i,1))
+        weekly.index=pandas.DataFrame(weekly_index)['Date']
+        return weekly
+    elif data_frame=='monthly':
+        monthly=g.groupby(['year','month']).mean()[params]
+        monthly_index={'Date':[]}
+        for i in monthly.index:
+            monthly_index['Date'].append(datetime.datetime(*i,1))
+        monthly.index=pandas.DataFrame(monthly_index)['Date']
+        return monthly
+    else:
+        shiftly=g[params]
+        shiftly.index=g['Date']
+        return shiftly
+#convert isocalendar datetime object
+def isocal_to_date(year, week, day=1):
+    jan4 = datetime.datetime(year, 1, 4)
+    start = jan4 - datetime.timedelta(days=jan4.isoweekday()-1)
+    return start + datetime.timedelta(weeks=week-1, days=day-1)
+
 #TODO Pie Chart Plot for shiftfile
 def pi_shift_plot(sffile):
     pass

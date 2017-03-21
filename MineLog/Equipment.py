@@ -18,7 +18,7 @@ class Equipment:
     # Attributes:
     #     Name,Type, ActivityData
 
-    def __init__(self,Name="Equipment1",Type="Type"):
+    def __init__(self,Name="Equipment1",Type="Shovel"):
         self.Name = Name
         self.Type = Type
         self.Data = pandas.DataFrame()
@@ -33,11 +33,13 @@ class Equipment:
                 print(e)
 
     def AddFile(self,SF):
-        if basename(SF).split("_")[0]==self.Name and isfile(SF):
-            sf = ShiftFile(SF)
-            self.AddData(sf)
-            return True
-        return False
+        try:
+            if basename(SF).split("_")[0]==self.Name and isfile(SF):
+                sf = ShiftFile(SF)
+                self.AddData(sf)
+                return True
+        except:
+            return False
     #TODO set the default saving directory
     def save(self,filepath=os.getcwd()):
         with open(filepath+"/"+self.Name+".mlog",'wb') as f:
@@ -63,7 +65,7 @@ class Equipment:
 
 # # TODO improve the RemoveFile function
 # def RemoveFile(self,Equipment,Date,Shift):
-#     index=None
+
 #     for i in self.ActivityData:
 #         if i.Equipment == Equipment and i.Date == Date and i.Shift == Shift:
 #             index=self.ActivityData.index(i)

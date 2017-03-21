@@ -23,6 +23,11 @@ class ShiftFile:
         self.Shift=x[3].replace("\n","").split(",")[1]
         self.data = pd.read_csv(StringIO("".join(x[4:])))
 
+        # self.day = self.Date.day
+        # self.year = self.Date.year
+        # self.month = self.Date.month
+        # self.week = self.Date.isocalendar()[1]
+
         self.Date = self.Date + datetime.timedelta(hours=8*(int(self.Shift)-1))
 
     # Calculates for Availability,Utilization,Efficiency,OEE
@@ -53,8 +58,8 @@ class ShiftFile:
     # Gets activity-time interval from self.data
     def getactivitytime(self):
         data=self.data
-        start = data['TimeStart'][:-1]
-        end = data['TimeStart'][1:]
+        start = data['Time Start'][:-1]
+        end = data['Time Start'][1:]
         timeinterval = pd.Series([en-st for st,en in zip(start,end)])
 
         activity=data['Activity'][:-1]
