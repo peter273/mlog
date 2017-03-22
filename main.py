@@ -19,9 +19,25 @@ class NewEqDialog(QtGui.QDialog,Ui_Dialog):
         eqtype= self.eqtype_combobox.currentText()
         return (str(name).strip(),str(eqtype))
 class EqItemGui:
-    def __init__(self,eq,eq_gui):
+    def __init__(self,eq):
         self.eq=eq
-        self.eq_gui
+        self.eq_gui=self.get_eq_gui()
+    def get_eq_gui(self):
+        i=self.eq
+        eq_item=QtGui.QTreeWidgetItem(None,[i.Name])
+        attributes=["OEE",
+                "Availability",
+                "Utilization",
+                "Efficiency"]
+        for ctr in range(len(i.Data)):
+            Date=str(i.Data.iloc[ctr].Date.date())
+            Shift=i.Data.iloc[ctr].Shift
+            param=[str(getattr(i.Data.iloc[ctr],temp)) for temp in attributes]
+            shift_item=QtGui.QTreeWidgetItem(eq_item,[Date+" Shift "+Shift,
+                *param])
+        return eq_item
+
+
 
 from mlogUI import mwindow
 class MainUI(mwindow.Ui_MainWindow):
@@ -47,12 +63,12 @@ class MainUI(mwindow.Ui_MainWindow):
         self.shovel_listwidget.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         self.shovel_listwidget.itemSelectionChanged.connect(self.itemSelectionChanged)
         self.truck_listwidget.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
+        self.truck_listwidget.itemSelectionChanged.connect(self.itemSelectionChanged)
         self.ma_checkbox.stateChanged.connect(self.maspinner_changestate)
         self.ma_spinBox.setEnabled(False)
         self.get_initial_equipment_list()
 
         self.display_headers()
-        self.data_to_display=[]
     # Display Headers
     def display_headers(self):
         header=QtGui.QTreeWidgetItem([
@@ -62,6 +78,11 @@ class MainUI(mwindow.Ui_MainWindow):
             "Utilization",
             "Efficiency"])
         self.data_listwidget.setHeaderItem(header)
+        for lw in [self.shovel_listwidget,self.truck_listwidget]:
+            for i in range(lw.count()):
+                g=lw.item(i).data(QtCore.Qt.UserRole).eq_gui
+                self.data_listwidget.addTopLevelItem(g)
+                self.data_listwidget.setItemHidden(g,True)
 
     # Change Moving Average Spinner state when Moving Average check box state changes
     def maspinner_changestate(self):
@@ -72,41 +93,15 @@ class MainUI(mwindow.Ui_MainWindow):
 
     def itemSelectionChanged(self):
         #TODO change data to view upon change equipment
-        
         eq = self.chosen_equipment()
-        eqpment = [i.data(QtCore.Qt.UserRole) for i in eq]
+        eqpment = [i.data(QtCore.Qt.UserRole).eq_gui for i in eq]
         data_frame=self.chosen_dataframe()
-
-        # eqlist=self.eq_tab.currentIndex()
-        # if eqlist==0: eq_listwidget=self.shovel_listwidget
-        # elif eqlist==1: eq_listwidget=self.truck_listwidget
-
-        # eqpment= [i.data(
-        # for i in range(eq_listwidget.count()): 
-        #     print(eq_listwidget.item(i))
-
-        header=QtGui.QTreeWidgetItem([
-            "Name",
-            "OEE",
-            "Availability",
-            "Utilization",
-            "Efficiency"])
-        main_=self.data_listwidget
-        main_.clear()
-        main_.setHeaderItem(header)
+        for lw in [self.shovel_listwidget,self.truck_listwidget]:
+            for i in range(lw.count()):
+                g=lw.item(i).data(QtCore.Qt.UserRole).eq_gui
+                self.data_listwidget.setItemHidden(g,True)
         for i in eqpment:
-            eq_item=QtGui.QTreeWidgetItem(main_,[i.Name])
-            eq_item.setData(2,QtCore.Qt.UserRole,i)
-            attributes=["OEE",
-                    "Availability",
-                    "Utilization",
-                    "Efficiency"]
-            for ctr in range(len(i.Data)):
-                Date=str(i.Data.iloc[ctr].Date.date())
-                Shift=i.Data.iloc[ctr].Shift
-                param=[str(getattr(i.Data.iloc[ctr],temp)) for temp in attributes]
-                shift_item=QtGui.QTreeWidgetItem(eq_item,[Date+" Shift "+Shift,
-                    *param])
+            self.data_listwidget.setItemHidden(i,False)
                     
 
     # Return the Time Frame to be Plotted
@@ -141,7 +136,7 @@ class MainUI(mwindow.Ui_MainWindow):
     # Plotting of Data 
     def plt_btn_clicked(self):
         eq = self.chosen_equipment()
-        eqpment = [i.data(QtCore.Qt.UserRole) for i in eq]
+        eqpment = [i.data(QtCore.Qt.UserRole).eq for i in eq]
         data_frame=self.chosen_dataframe()
         params=self.chosen_params()
 
@@ -170,7 +165,7 @@ class MainUI(mwindow.Ui_MainWindow):
 
             eq_item=QtGui.QListWidgetItem()
             eq_item.setText(eq.Name)
-            eq_item.setData(QtCore.Qt.UserRole,eq)
+            eq_item.setData(QtCore.Qt.UserRole,EqItemGui(eq))
 
             listwidget.addItem(eq_item)
             listwidget.repaint()
@@ -212,7 +207,7 @@ class MineLog(QtGui.QMainWindow):
         x = eq_listwidget.selectedItems()
         for i in x:
             eq_listwidget.takeItem(eq_listwidget.row(i))
-            g = i.data(QtCore.Qt.UserRole)
+            g = i.data(QtCore.Qt.UserRole).eq
             os.remove(os.path.join(filepath,g.Name+".mlog"))
 
     # Add Shift Function
@@ -223,7 +218,7 @@ class MineLog(QtGui.QMainWindow):
         eq=self.ui.chosen_equipment()
         if len(eq)==1:
             fname,fx = QtGui.QFileDialog.getOpenFileNames()
-            g=eq[0].data(QtCore.Qt.UserRole)
+            g=eq[0].data(QtCore.Qt.UserRole).eq
             notadded=[]
             for sfile in fname:
                 if g.AddFile(sfile): print('{0} is added'.format(sfile))
@@ -270,7 +265,7 @@ class MineLog(QtGui.QMainWindow):
 
         eq_item=QtGui.QListWidgetItem()
         eq_item.setText(name)
-        eq_item.setData(QtCore.Qt.UserRole,new_eq)
+        eq_item.setData(QtCore.Qt.UserRole,EqItemGui(new_eq))
 
         if eq_type=="Shovel": listwidget=self.ui.shovel_listwidget
         elif eq_type=="Truck": listwidget=self.ui.truck_listwidget
