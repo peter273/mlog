@@ -3,7 +3,11 @@
 import sys
 from PySide import QtCore, QtGui
 
-from MineLog import Equipment,ShiftFile,mload,oeeEquipmentPlot,Moving_AveragePlot 
+from MineLog import Equipment,ShiftFile,mload,\
+        oeeEquipmentPlot,Moving_AveragePlot,get_tframe
+
+import openpyxl 
+from openpyxl.utils.dataframe import dataframe_to_rows
 
 import os
 
@@ -21,7 +25,7 @@ class NewEqDialog(QtGui.QDialog,Ui_Dialog):
 class EqItemGui:
     def __init__(self,eq):
         self.eq=eq
-        self.eq_gui=self.get_eq_gui()
+        self.eq_gui=self.get_all_data()
     def get_eq_gui(self):
         i=self.eq
         eq_item=QtGui.QTreeWidgetItem(None,[i.Name])
@@ -36,6 +40,29 @@ class EqItemGui:
             shift_item=QtGui.QTreeWidgetItem(eq_item,[Date+" Shift "+Shift,
                 *param])
         return eq_item
+    def get_all_data(self):
+        data={'shiftly':None,
+                'daily':None,
+                'weekly':None,
+                'monthly':None}
+        for i in data:
+            data[i]=self.get_eqgui_data(i)
+        return data
+    def get_eqgui_data(self,data_frame):
+        if data_frame=="shiftly":
+            return self.get_eq_gui()
+        Data=get_tframe(self.eq,data_frame)
+        eq_item=QtGui.QTreeWidgetItem(None,["{0} ({1})".format(self.eq.Name,data_frame)])
+        attributes=["OEE",
+                "Availability",
+                "Utilization",
+                "Efficiency"]
+        for ctr in range(len(Data)):
+            Date=str(Data.iloc[ctr].name.date())
+            param=[str(getattr(Data.iloc[ctr],temp)) for temp in attributes]
+            shift_item=QtGui.QTreeWidgetItem(eq_item,[Date,
+                *param])
+        return eq_item
 
 
 
@@ -46,29 +73,39 @@ class MainUI(mwindow.Ui_MainWindow):
         dirname=os.path.dirname(__file__)
 
         icon_path={
-                'new':['plus.png',self.new_toolbtn],
-                'delete':['cancel-2.png',self.delete_toolbtn],
-                'addshift':['copy.png',self.addshift_toolbtn],
-                'info':['information.png',self.info_toolbtn],
-                'plot':['next-1.png',self.plot_toolbtn]}
+                'new':['plus.png',self.actionNewEquipment],
+                'delete':['cancel-2.png',self.actionDelete],
+                'addshift':['copy.png',self.actionAdd_Shift],
+                # 'info':['information.png',self.info_toolbtn],
+                'download':['download.png',self.actionExport],
+                'plot':['fast-forward.png',self.actionPlot]}
 
         for i in icon_path:
             icon_path[i][0]=os.path.join(dirname,"mlogUI/flaticons/icons/png/"+icon_path[i][0])
             icon = QtGui.QIcon()
             icon.addPixmap(QtGui.QPixmap(icon_path[i][0]), QtGui.QIcon.Normal, QtGui.QIcon.Off)
             icon_path[i][1].setIcon(icon)
-            icon_path[i][1].setIconSize(QtCore.QSize(30, 30))
+            # icon_path[i][1].setIconSize(QtCore.QSize(30, 30))
 
-        self.plot_toolbtn.clicked.connect(self.plt_btn_clicked)
         self.shovel_listwidget.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         self.shovel_listwidget.itemSelectionChanged.connect(self.itemSelectionChanged)
         self.truck_listwidget.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         self.truck_listwidget.itemSelectionChanged.connect(self.itemSelectionChanged)
+
         self.ma_checkbox.stateChanged.connect(self.maspinner_changestate)
         self.ma_spinBox.setEnabled(False)
         self.get_initial_equipment_list()
 
+        self.shift_rb.toggled.connect(lambda:self.bntstate(self.shift_rb))
+        self.day_rb.toggled.connect(lambda:self.bntstate(self.day_rb))
+        self.week_rb.toggled.connect(lambda:self.bntstate(self.week_rb))
+        self.month_rb.toggled.connect(lambda:self.bntstate(self.month_rb))
         self.display_headers()
+
+    def bntstate(self,b):
+        if b.isChecked():
+            self.itemSelectionChanged()
+
     # Display Headers
     def display_headers(self):
         header=QtGui.QTreeWidgetItem([
@@ -78,11 +115,13 @@ class MainUI(mwindow.Ui_MainWindow):
             "Utilization",
             "Efficiency"])
         self.data_listwidget.setHeaderItem(header)
+        chosen_dataframe=self.chosen_dataframe()
         for lw in [self.shovel_listwidget,self.truck_listwidget]:
             for i in range(lw.count()):
                 g=lw.item(i).data(QtCore.Qt.UserRole).eq_gui
-                self.data_listwidget.addTopLevelItem(g)
-                self.data_listwidget.setItemHidden(g,True)
+                for tframe in g:
+                    self.data_listwidget.addTopLevelItem(g[tframe])
+                    self.data_listwidget.setItemHidden(g[tframe],True)
 
     # Change Moving Average Spinner state when Moving Average check box state changes
     def maspinner_changestate(self):
@@ -92,17 +131,19 @@ class MainUI(mwindow.Ui_MainWindow):
             self.ma_spinBox.setEnabled(False)
 
     def itemSelectionChanged(self):
-        #TODO change data to view upon change equipment
         eq = self.chosen_equipment()
-        eqpment = [i.data(QtCore.Qt.UserRole).eq_gui for i in eq]
-        data_frame=self.chosen_dataframe()
+        chosen_dataframe=self.chosen_dataframe()
+        x=['shiftly','daily','weekly','monthly']
+        eqpment=[j.data(QtCore.Qt.UserRole).eq_gui[chosen_dataframe] for j in eq]
+        # Hide all Items in data_listwidget
         for lw in [self.shovel_listwidget,self.truck_listwidget]:
             for i in range(lw.count()):
-                g=lw.item(i).data(QtCore.Qt.UserRole).eq_gui
-                self.data_listwidget.setItemHidden(g,True)
+                for tframe in x:
+                    g=lw.item(i).data(QtCore.Qt.UserRole).eq_gui[tframe]
+                    self.data_listwidget.setItemHidden(g,True)
+        # Show all item from chosen epment in data_listwidget
         for i in eqpment:
             self.data_listwidget.setItemHidden(i,False)
-                    
 
     # Return the Time Frame to be Plotted
     def chosen_dataframe(self):
@@ -133,20 +174,6 @@ class MainUI(mwindow.Ui_MainWindow):
             if i.checkState():
                 params.append(i.text())
         return params
-    # Plotting of Data 
-    def plt_btn_clicked(self):
-        eq = self.chosen_equipment()
-        eqpment = [i.data(QtCore.Qt.UserRole).eq for i in eq]
-        data_frame=self.chosen_dataframe()
-        params=self.chosen_params()
-
-        moving_ave_on=self.ma_checkbox.checkState()
-        interval = (self.ma_spinBox.value())
-        if eqpment and params and not moving_ave_on:
-            oeeEquipmentPlot(eqpment,params,data_frame)
-        if moving_ave_on and eqpment and params:
-            Moving_AveragePlot(eqpment,params,data_frame,interval=interval)
-        # TODO add dialog for no chosen parameter/equipment
 
     def get_initial_equipment_list(self):
         dirpath=os.path.dirname(__file__)
@@ -168,7 +195,7 @@ class MainUI(mwindow.Ui_MainWindow):
             eq_item.setData(QtCore.Qt.UserRole,EqItemGui(eq))
 
             listwidget.addItem(eq_item)
-            listwidget.repaint()
+        listwidget.repaint()
 
 class MineLog(QtGui.QMainWindow):
     def __init__(self,parent=None):
@@ -176,10 +203,73 @@ class MineLog(QtGui.QMainWindow):
         # self.ui=Ui_MainWindow()
         self.ui=MainUI()
         self.ui.setupUi(self)
-        self.ui.new_toolbtn.clicked.connect(self.new_buttonClicked)
-        self.ui.addshift_toolbtn.clicked.connect(self.func_addshift)
-        self.ui.delete_toolbtn.clicked.connect(self.func_deleq)
+        self.ui.actionNewEquipment.triggered.connect(self.new_buttonClicked)
+        self.ui.actionAdd_Shift.triggered.connect(self.func_addshift)
+        self.ui.actionDelete.triggered.connect(self.func_deleq)
+        self.ui.actionPlot.triggered.connect(self.plt_btn_clicked)
+        self.ui.actionExport.triggered.connect(self.export_data)
         #TODO check if Equipment folder exists
+    def export_data(self):
+        eq = self.ui.chosen_equipment()
+        eqpment = [i.data(QtCore.Qt.UserRole).eq for i in eq]
+        data_frame=self.ui.chosen_dataframe()
+        params=self.ui.chosen_params()
+
+        moving_ave_on=self.ui.ma_checkbox.checkState()
+        interval = (self.ui.ma_spinBox.value())
+        if eqpment and params and not moving_ave_on:
+            self.export_data_helper(
+                oeeEquipmentPlot(eqpment,params,data_frame=data_frame,
+                    export_data=True),
+                eqpment,
+                data_frame,)
+
+        elif moving_ave_on and eqpment and params:
+            self.export_data_helper(
+                Moving_AveragePlot(eqpment,params,data_frame=data_frame,
+                    interval=interval,export_data=True),
+                eqpment,
+                data_frame,)
+
+
+        elif not eq:
+            msg = QtGui.QMessageBox(self)
+            msg.setText('No Equipment was chosen')
+            msg.setWindowTitle("Warning")
+            msg.show()
+    def export_data_helper(self,data,eqpment,data_frame):
+        filename,filext = QtGui.QFileDialog.getSaveFileName(self,
+            "Save file","Untitled",".xlsx")
+        if filename:
+        
+            wb=openpyxl.Workbook(write_only=True)
+            ws={i:wb.create_sheet(i) for i in data}
+
+            for i in data:
+                for row in dataframe_to_rows(data[i],index=True,header=True):
+                    ws[i].append(row)
+            print('done saving',filename+filext)
+            wb.save(filename+filext)
+
+
+    # Plotting of Data 
+    def plt_btn_clicked(self):
+        eq = self.ui.chosen_equipment()
+        eqpment = [i.data(QtCore.Qt.UserRole).eq for i in eq]
+        data_frame=self.ui.chosen_dataframe()
+        params=self.ui.chosen_params()
+
+        moving_ave_on=self.ui.ma_checkbox.checkState()
+        interval = (self.ui.ma_spinBox.value())
+        if eqpment and params and not moving_ave_on:
+            oeeEquipmentPlot(eqpment,params,data_frame=data_frame)
+        elif moving_ave_on and eqpment and params:
+            Moving_AveragePlot(eqpment,params,data_frame=data_frame,interval=interval)
+        elif not eq:
+            msg = QtGui.QMessageBox(self)
+            msg.setText('No Equipment was chosen')
+            msg.setWindowTitle("Warning")
+            msg.show()
 
     # Delete Equipment Function
     def func_deleq(self):
@@ -217,11 +307,12 @@ class MineLog(QtGui.QMainWindow):
         filepath = os.path.join(dirpath,'Equipment')
         eq=self.ui.chosen_equipment()
         if len(eq)==1:
-            fname,fx = QtGui.QFileDialog.getOpenFileNames()
-            g=eq[0].data(QtCore.Qt.UserRole).eq
+            fname,fx = QtGui.QFileDialog.getOpenFileNames(self,'Add Shift File')
+            g=eq[0].data(QtCore.Qt.UserRole)
             notadded=[]
             for sfile in fname:
-                if g.AddFile(sfile): print('{0} is added'.format(sfile))
+                if g.eq.AddFile(sfile): 
+                    print('{0} is added'.format(sfile))
                 else:
                     notadded.append(os.path.basename(sfile))
                     print("Error in Adding {0}".format(sfile))
@@ -230,11 +321,22 @@ class MineLog(QtGui.QMainWindow):
                 msg += "Do you wish to continue adding files that can be Added?"
                 reply = QtGui.QMessageBox.question(self,'Message',msg,QtGui.QMessageBox.Yes,QtGui.QMessageBox.No)
                 if reply == QtGui.QMessageBox.Yes:
-                    g.update()
-                    g.save(filepath)
+                    g.eq.update()
+                    g.eq.save(filepath)
             else:
-                g.update()
-                g.save(filepath)
+                g.eq.update()
+                g.eq.save(filepath)
+
+                data_listwidget=self.ui.data_listwidget
+                chosen_dataframe=self.ui.chosen_dataframe()
+                temp = g.get_all_data()
+                for i in g.eq_gui:
+                    index_item=data_listwidget.indexOfTopLevelItem(g.eq_gui[i])
+                    data_listwidget.takeTopLevelItem(index_item)
+                    data_listwidget.insertTopLevelItem(index_item,temp[i])
+                g.eq_gui=temp
+                self.ui.data_listwidget.setItemHidden(g.eq_gui[chosen_dataframe],False)
+
         else:
             msg = QtGui.QMessageBox(self)
             msg.setText('Choose only one Equipment')
@@ -262,16 +364,25 @@ class MineLog(QtGui.QMainWindow):
             os.mkdir(filepath)
         new_eq=Equipment(name)
         new_eq.save(filepath)
+        new_eq_gui=EqItemGui(new_eq)
 
         eq_item=QtGui.QListWidgetItem()
         eq_item.setText(name)
-        eq_item.setData(QtCore.Qt.UserRole,EqItemGui(new_eq))
+        eq_item.setData(QtCore.Qt.UserRole,new_eq_gui)
 
         if eq_type=="Shovel": listwidget=self.ui.shovel_listwidget
         elif eq_type=="Truck": listwidget=self.ui.truck_listwidget
 
+        x=['shiftly','daily','weekly','monthly']
+        for i in new_eq_gui.eq_gui:
+            for trame in x:
+                self.ui.data_listwidget.addTopLevelItem(i[tframe])
+                self.ui.data_listwidget.setItemHidden(i[tframe],True)
+
         listwidget.addItem(eq_item)
         listwidget.repaint()
+
+
 
 if __name__=="__main__":
     app=QtGui.QApplication(sys.argv)
