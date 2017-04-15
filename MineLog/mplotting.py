@@ -6,59 +6,41 @@ from matplotlib import ticker
 import matplotlib.pyplot as plt
 plt.style.use('ggplot')
 
-def oeeEquipmentPlot(eq_list,param=['OEE'],data_frame='shiftly',export_data=False,marker='o',**kwargs):
+def oeeEquipmentPlot(eq_list,param=['OEE'],data_frame='shiftly',marker='o',**kwargs):
     g=getPlot_data(eq_list,data_frame,"Availability","Utilization","Efficiency","OEE")
-    plot_dict={i:None for i in param}
     if len(param)>1:
-        if not export_data:
-            fig,ax1=plt.subplots(len(param),1)
+        fig,ax1=plt.subplots(len(param),1)
         for i,par in enumerate(param):
             k=g.minor_xs(par)
-            plot_dict[par]=k
-            if not export_data:
-                temp=k.plot(ax=ax1[i],title=par,marker=marker,**kwargs)
-                temp.xaxis.label.set_visible(False)
+            temp=k.plot(ax=ax1[i],title=par,marker=marker,**kwargs)
+            temp.xaxis.label.set_visible(False)
     else:
-        if not export_data:
-            fig,ax1=plt.subplots()
+        fig,ax1=plt.subplots()
         for i,par in enumerate(param):
             k=g.minor_xs(par)
-            plot_dict[par]=k
-            if not export_data:
-                k.plot(ax=ax1,title=par,marker=marker,**kwargs)
-    if not export_data:
-        plt.subplots_adjust(hspace=.6)
-        plt.draw()
-        plt.show()
-    return plot_dict
+            k.plot(ax=ax1,title=par,marker=marker,**kwargs)
+    plt.subplots_adjust(hspace=.6)
+    plt.draw()
+    plt.show()
 
 # **kwargs are for plotting parameters
-def Moving_AveragePlot(eq_list,param,data_frame="shiftly",export_data=False,interval=2,marker='o',**kwargs):
+def Moving_AveragePlot(eq_list,param,data_frame="shiftly",interval=2,marker='o',**kwargs):
     g=getPlot_data(eq_list,data_frame,"Availability","Utilization","Efficiency","OEE")
-    plot_dict={i:[] for i in param}
     if len(param)>1:
-        if not export_data:
-            fig,ax1=plt.subplots(len(param),1)
+        fig,ax1=plt.subplots(len(param),1)
         for i,par in enumerate(param):
             k=g.minor_xs(par).rolling(window=interval).mean()
-            plot_dict[par]=k
-            if not export_data:
-                temp=k.plot(ax=ax1[i],title=par+" (rolling mean),I={0}".format(interval),marker=marker,**kwargs)
-                temp.xaxis.label.set_visible(False)
+            temp=k.plot(ax=ax1[i],title=par+" (rolling mean),I={0}".format(interval),marker=marker,**kwargs)
+            temp.xaxis.label.set_visible(False)
     else:
-        if not export_data:
-            fig,ax1=plt.subplots()
+        fig,ax1=plt.subplots()
         for i,par in enumerate(param):
             k=g.minor_xs(par).rolling(window=interval).mean()
-            plot_dict[par]=k
-            if not export_data:
-                k.plot(ax=ax1,title=par+" (rolling mean),I={0}".format(interval),\
-                        marker=marker,**kwargs)
-    if not export_data:
-        plt.subplots_adjust(hspace=.6)
-        plt.draw()
-        plt.show()
-    return plot_dict
+            k.plot(ax=ax1,title=par+" (rolling mean),I={0}".format(interval),\
+                    marker=marker,**kwargs)
+    plt.subplots_adjust(hspace=.6)
+    plt.draw()
+    plt.show()
 #for oeeEquipmentPlot and MovingAveragePlot
 def getPlot_data(eq_list,data_frame='shiftly',*param):
     g={}

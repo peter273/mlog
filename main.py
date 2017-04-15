@@ -32,7 +32,8 @@ class EqItemGui:
         attributes=["OEE",
                 "Availability",
                 "Utilization",
-                "Efficiency"]
+                "Efficiency",]
+
         for ctr in range(len(i.Data)):
             Date=str(i.Data.iloc[ctr].Date.date())
             Shift=i.Data.iloc[ctr].Shift
