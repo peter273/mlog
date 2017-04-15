@@ -4,23 +4,27 @@ import sys
 import os
 from random import choice 
 from random import randrange
-def GenerateTestData(Equipment,Date,Shift,activities_no):
+def GenerateTestData(Equipment,Date,Shift,activities_no,Type="Shovel"):
 
     out0 = '"Equipment",'+'"{0}"'.format(str(Equipment))+"\n"
-    out0+= '"Type",'+'"Shovel"'+"\n"
-    out0+= '"Date,"'+ '"{0}"'.format(str(Date))+"\n" 
-    out0+= '"Shift,"'+ '"{0}"'.format(str(Shift))+"\n"
+    out0+= '"Type",'+'"{0}"'.format(Type)+"\n"
+    out0+= '"Date",'+ '"{0}"'.format(str(Date))+"\n" 
 
-    out=[['"Type"','"Activity"','Time Start','"Other"']]
+    out0+= '"Shift",'+ '"{0}"'.format(str(Shift))+"\n"
+
+    out=[['"Type"','"Activity"','Time Start','"Operator"']]
     atype = ['"D"']*2
     atype.extend(['"P"']*10)
     atype.extend(['"S"']*5)
 
 
-    out.append([choice(atype),'"Activity"',0," "])
+    out.append([choice(atype),'"Activity"',0,'"operator"'])
     for i in range(2,activities_no+1):
-        out.append([choice(atype),'"Activity {0}"'.format(str(i)),out[i-1][2]+randrange(6,12)," "])
-    out.append(['"E"','"EndShift"',out[-1][2]+randrange(6,28)," "])
+        out.append([choice(atype),
+            '"Activity {0}"'.format(str(i)),
+            out[i-1][2]+randrange(6,12),
+            '"operator"'])
+    out.append(['"E"','"EndShift"',out[-1][2]+randrange(6,28),'"operator"'])
 
     for i in out:
         i[2] = '"{0}"'.format(i[2])
@@ -58,11 +62,15 @@ def GenerateCsvs(a,b,c=100,Foldername="datagenerator_output"):
 
     os.chdir(original_dir)
 
-GenerateCsvs(int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]))
-# try:
-# except Exception as e:
-#     print(e)
-#     print("Usage: python3 datagenerator.py a b ")
-#     print("a = numberofEquipment")
-#     print("b = numberofdays")
-#     print("Total number of files generated = 3*a*b")
+try:
+    GenerateCsvs(int(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]))
+except Exception as e:
+    print(e)
+    outmessage='''
+    Usage: python3 datagenerator.py a b c
+    a = numberofEquipment
+    b = numberofdays
+    c = number activities
+    Total number of files generated = 3*a*b
+    '''
+    print(outmessage)

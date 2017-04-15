@@ -2,10 +2,11 @@ import pandas as pd
 import datetime
 from io import StringIO
 
+
 class ShiftFile:
     # Attributes:
     #     Equipment,Date,Shift,data,selected
-    #     Availability,Utilization,Efficiency,OEE
+    #     Availability,Utilization,Efficiency,OEE,totaltime
 
     def __init__(self,filename):
         self.getInformation(filename)
@@ -16,17 +17,12 @@ class ShiftFile:
             k=f.readlines()
         x=[i.replace("\"","") for i in k]
 
-        self.Equipment=x[0].replace("\n","").split(",")[1]
-        self.EType=x[1].replace("\n","").split(",")[1]
-        Date=x[2].replace("\n","").split(",")[1]
-        self.Date=datetime.datetime.strptime(Date,"%Y%m%d")
-        self.Shift=x[3].replace("\n","").split(",")[1]
+        self.Equipment = x[0].replace("\n","").split(",")[1]
+        self.EType = x[1].replace("\n","").split(",")[1]
+        Date = x[2].replace("\n","").split(",")[1]
+        self.Date = datetime.datetime.strptime(Date,"%Y%m%d")
+        self.Shift = x[3].replace("\n","").split(",")[1]
         self.data = pd.read_csv(StringIO("".join(x[4:])))
-
-        # self.day = self.Date.day
-        # self.year = self.Date.year
-        # self.month = self.Date.month
-        # self.week = self.Date.isocalendar()[1]
 
         self.Date = self.Date + datetime.timedelta(hours=8*(int(self.Shift)-1))
 
@@ -54,6 +50,7 @@ class ShiftFile:
         self.Utilization = round(utilization * 100,2)
         self.Efficiency = round(efficiency *100,2)
         self.OEE = round(oee *100,2)
+        # self.totaltime=totaltime
 
     # Gets activity-time interval from self.data
     def getactivitytime(self):

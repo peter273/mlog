@@ -21,7 +21,12 @@ class Equipment:
     def __init__(self,Name="Equipment1",Type="Shovel"):
         self.Name = Name
         self.Type = Type
-        self.Data = pandas.DataFrame()
+        keys=[
+            'data', 'Equipment', 'EType', 'OEE', 
+            'Utilization', 'Availability', 'Shift', 
+            'Date', 'Efficiency']
+        a={i:[] for i in keys}
+        self.Data = pandas.DataFrame.from_dict(a)
 
     def AddFileFromDirectory(self,filedir):
         files=(f for f in  os.listdir(filedir) if isfile(join(filedir,f)))

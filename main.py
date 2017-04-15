@@ -52,17 +52,18 @@ class EqItemGui:
     def get_eqgui_data(self,data_frame):
         if data_frame=="shiftly":
             return self.get_eq_gui()
-        Data=get_tframe(self.eq,data_frame)
         eq_item=QtGui.QTreeWidgetItem(None,["{0} ({1})".format(self.eq.Name,data_frame)])
         attributes=["OEE",
                 "Availability",
                 "Utilization",
                 "Efficiency"]
-        for ctr in range(len(Data)):
-            Date=str(Data.iloc[ctr].name.date())
-            param=[str(getattr(Data.iloc[ctr],temp)) for temp in attributes]
-            shift_item=QtGui.QTreeWidgetItem(eq_item,[Date,
-                *param])
+        if len(self.eq.Data):
+            Data=get_tframe(self.eq,data_frame)
+            for ctr in range(len(Data)):
+                Date=str(Data.iloc[ctr].name.date())
+                param=[str(getattr(Data.iloc[ctr],temp)) for temp in attributes]
+                shift_item=QtGui.QTreeWidgetItem(eq_item,[Date,
+                    *param])
         return eq_item
 
 
@@ -114,7 +115,8 @@ class MainUI(mwindow.Ui_MainWindow):
             "OEE",
             "Availability",
             "Utilization",
-            "Efficiency"])
+            "Efficiency",
+            "Total Hours", ])
         self.data_listwidget.setHeaderItem(header)
         chosen_dataframe=self.chosen_dataframe()
         for lw in [self.shovel_listwidget,self.truck_listwidget]:
@@ -330,13 +332,46 @@ class MineLog(QtGui.QMainWindow):
 
                 data_listwidget=self.ui.data_listwidget
                 chosen_dataframe=self.ui.chosen_dataframe()
+                for i in g.eq_gui:
+                    print(i,g.eq_gui[i])
+
                 temp = g.get_all_data()
+                
                 for i in g.eq_gui:
                     index_item=data_listwidget.indexOfTopLevelItem(g.eq_gui[i])
-                    data_listwidget.takeTopLevelItem(index_item)
-                    data_listwidget.insertTopLevelItem(index_item,temp[i])
+                    if index_item!=-1:
+                        data_listwidget.takeTopLevelItem(index_item)
+                        data_listwidget.insertTopLevelItem(index_item,temp[i])
+                    else:
+                        data_listwidget.addTopLevelItem(temp[i])
+                        data_listwidget.setItemHidden(temp[i],True)
+
                 g.eq_gui=temp
                 self.ui.data_listwidget.setItemHidden(g.eq_gui[chosen_dataframe],False)
+                self.ui.data_listwidget.repaint()
+
+                # eqlist=self.ui.eq_tab.currentIndex()
+                # if eqlist==0: eq_listwidget=self.ui.shovel_listwidget
+                # elif eqlist==1: eq_listwidget=self.ui.truck_listwidget
+                
+                # x = eq_listwidget.selectedItems()
+                # for i in x:
+                #     eq_listwidget.takeItem(eq_listwidget.row(i))
+
+                # ----------------
+                ## g=lw.item(i).data(QtCore.Qt.UserRole).eq_gui
+
+                # new_eq_gui=EqItemGui(g.eq)
+                # eq_item=QtGui.QListWidgetItem()
+                # eq_item.setText(name)
+                # eq_item.setData(QtCore.Qt.UserRole,new_eq_gui)
+
+                # if eq_type=="Shovel": listwidget=self.ui.shovel_listwidget
+                # elif eq_type=="Truck": listwidget=self.ui.truck_listwidget
+
+                # listwidget.addItem(eq_item)
+                # listwidget.repaint()
+
 
         else:
             msg = QtGui.QMessageBox(self)
@@ -363,7 +398,7 @@ class MineLog(QtGui.QMainWindow):
         filepath= os.path.join(dirpath,'Equipment')
         if not os.path.exists(filepath):
             os.mkdir(filepath)
-        new_eq=Equipment(name)
+        new_eq=Equipment(name,eq_type)
         new_eq.save(filepath)
         new_eq_gui=EqItemGui(new_eq)
 
@@ -373,12 +408,6 @@ class MineLog(QtGui.QMainWindow):
 
         if eq_type=="Shovel": listwidget=self.ui.shovel_listwidget
         elif eq_type=="Truck": listwidget=self.ui.truck_listwidget
-
-        x=['shiftly','daily','weekly','monthly']
-        for i in new_eq_gui.eq_gui:
-            for trame in x:
-                self.ui.data_listwidget.addTopLevelItem(i[tframe])
-                self.ui.data_listwidget.setItemHidden(i[tframe],True)
 
         listwidget.addItem(eq_item)
         listwidget.repaint()
