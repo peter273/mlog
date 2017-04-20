@@ -9,6 +9,8 @@ from MineLog import Equipment,ShiftFile,mload,\
 import openpyxl 
 from openpyxl.utils.dataframe import dataframe_to_rows
 
+import pandas
+
 import os
 
 
@@ -32,7 +34,8 @@ class EqItemGui:
         attributes=["OEE",
                 "Availability",
                 "Utilization",
-                "Efficiency",]
+                "Efficiency",
+                "totaltime"]
 
         for ctr in range(len(i.Data)):
             Date=str(i.Data.iloc[ctr].Date.date())
@@ -56,7 +59,8 @@ class EqItemGui:
         attributes=["OEE",
                 "Availability",
                 "Utilization",
-                "Efficiency"]
+                "Efficiency",
+                "totaltime", ]
         if len(self.eq.Data):
             Data=get_tframe(self.eq,data_frame)
             for ctr in range(len(Data)):
@@ -116,7 +120,7 @@ class MainUI(mwindow.Ui_MainWindow):
             "Availability",
             "Utilization",
             "Efficiency",
-            "Total Hours", ])
+            "Total Time (hours)", ])
         self.data_listwidget.setHeaderItem(header)
         chosen_dataframe=self.chosen_dataframe()
         for lw in [self.shovel_listwidget,self.truck_listwidget]:
@@ -216,7 +220,8 @@ class MineLog(QtGui.QMainWindow):
         eq = self.ui.chosen_equipment()
         eqpment = [i.data(QtCore.Qt.UserRole).eq for i in eq]
         data_frame=self.ui.chosen_dataframe()
-        params=self.ui.chosen_params()
+        # params=self.ui.chosen_params()
+        params= ['OEE','Availability','Utilization','Efficiency','totaltime']
 
         moving_ave_on=self.ui.ma_checkbox.checkState()
         interval = (self.ui.ma_spinBox.value())
@@ -244,15 +249,20 @@ class MineLog(QtGui.QMainWindow):
         filename,filext = QtGui.QFileDialog.getSaveFileName(self,
             "Save file","Untitled",".xlsx")
         if filename:
-        
-            wb=openpyxl.Workbook(write_only=True)
-            ws={i:wb.create_sheet(i) for i in data}
-
+            writer=pandas.ExcelWriter(filename+filext,engine='openpyxl')
             for i in data:
-                for row in dataframe_to_rows(data[i],index=True,header=True):
-                    ws[i].append(row)
-            print('done saving',filename+filext)
-            wb.save(filename+filext)
+                data[i].to_excel(writer,sheet_name=str(i))
+            writer.save()
+
+        # if filename:
+        #     wb=openpyxl.Workbook(write_only=True)
+        #     ws={i:wb.create_sheet(i) for i in data}
+
+        #     for i in data:
+        #         for row in dataframe_to_rows(data[i],index=True,header=True):
+        #             ws[i].append(row)
+        #     print('done saving',filename+filext)
+        #     wb.save(filename+filext)
 
 
     # Plotting of Data 
@@ -332,8 +342,6 @@ class MineLog(QtGui.QMainWindow):
 
                 data_listwidget=self.ui.data_listwidget
                 chosen_dataframe=self.ui.chosen_dataframe()
-                for i in g.eq_gui:
-                    print(i,g.eq_gui[i])
 
                 temp = g.get_all_data()
                 
@@ -349,29 +357,6 @@ class MineLog(QtGui.QMainWindow):
                 g.eq_gui=temp
                 self.ui.data_listwidget.setItemHidden(g.eq_gui[chosen_dataframe],False)
                 self.ui.data_listwidget.repaint()
-
-                # eqlist=self.ui.eq_tab.currentIndex()
-                # if eqlist==0: eq_listwidget=self.ui.shovel_listwidget
-                # elif eqlist==1: eq_listwidget=self.ui.truck_listwidget
-                
-                # x = eq_listwidget.selectedItems()
-                # for i in x:
-                #     eq_listwidget.takeItem(eq_listwidget.row(i))
-
-                # ----------------
-                ## g=lw.item(i).data(QtCore.Qt.UserRole).eq_gui
-
-                # new_eq_gui=EqItemGui(g.eq)
-                # eq_item=QtGui.QListWidgetItem()
-                # eq_item.setText(name)
-                # eq_item.setData(QtCore.Qt.UserRole,new_eq_gui)
-
-                # if eq_type=="Shovel": listwidget=self.ui.shovel_listwidget
-                # elif eq_type=="Truck": listwidget=self.ui.truck_listwidget
-
-                # listwidget.addItem(eq_item)
-                # listwidget.repaint()
-
 
         else:
             msg = QtGui.QMessageBox(self)

@@ -50,7 +50,8 @@ class ShiftFile:
         self.Utilization = round(utilization * 100,2)
         self.Efficiency = round(efficiency *100,2)
         self.OEE = round(oee *100,2)
-        # self.totaltime=totaltime
+
+        self.totaltime=totaltime
 
     # Gets activity-time interval from self.data
     def getactivitytime(self):

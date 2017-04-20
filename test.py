@@ -1,8 +1,9 @@
-from MineLog import Equipment,ShiftFile,mload, oeeEquipmentPlot,Moving_AveragePlot
+from MineLog import Equipment,ShiftFile,mload, \
+    oeeEquipmentPlot,Moving_AveragePlot
 # import numpy as np
 # import pandas
 # from matplotlib import ticker
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 # import matplotlib.dates as mdates
 # import matplotlib.cbook as cbook
 # import datetime
@@ -44,15 +45,23 @@ start = time.time()
 # y2=mload(os.path.join(equipment_file_location,'Equipment2.mlog'))
 # y2.update()
 
-y3=mload(os.path.join(equipment_file_location,'Equipment3.mlog'))
-y3.update()
+Ei=lambda i:'Equipment{0}'.format(i)
+for i in range(1,5):
+    x=Equipment(Ei(i))
+    x.AddFileFromDirectory(os.path.join(os.getcwd(),'MineLog/datagenerator_output'))
+    x.update()
+    x.save(equipment_file_location)
 
+# y3=mload(os.path.join(equipment_file_location,'Equipment1.mlog'))
+# y3.update()
+
+# y4=mload(os.path.join(equipment_file_location,'Equipment2.mlog'))
+# y4.update()
 #month
 # returns (year,month)
 # print(b.iloc[1].name)
-
-
-plt.show()
+# print(Moving_AveragePlot([y3,y4],['Utilization','Availability'],interval=2,export_data=True))
+# plt.show()
 
 # #NOTE Plotting Singe Equipment
 # # oeeEquipmentPlot(y1)
