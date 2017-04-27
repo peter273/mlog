@@ -170,8 +170,8 @@ def get_tframe(
         
         weekly_index={'Date':[]}
         for i in weekly.index:
-            k=isocal_to_date(*i,1)
-            weekly_index['Date'].append(isocal_to_date(*i,1))
+            k=isocal_to_date(i[0],i[1],1)
+            weekly_index['Date'].append(isocal_to_date(i[0],i[1],1))
         weekly.index=pandas.DataFrame(weekly_index)['Date']
         return weekly
     elif data_frame=='monthly':
@@ -185,7 +185,7 @@ def get_tframe(
 
         monthly_index={'Date':[]}
         for i in monthly.index:
-            monthly_index['Date'].append(datetime.datetime(*i,1))
+            monthly_index['Date'].append(datetime.datetime(i[0],i[1],1))
         monthly.index=pandas.DataFrame(monthly_index)['Date']
         return monthly
     else:

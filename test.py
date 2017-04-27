@@ -1,7 +1,7 @@
 from MineLog import Equipment,ShiftFile,mload, \
-    oeeEquipmentPlot,Moving_AveragePlot
+    oeeEquipmentPlot,Moving_AveragePlot,get_tframe
 # import numpy as np
-# import pandas
+import pandas
 # from matplotlib import ticker
 import matplotlib.pyplot as plt
 # import matplotlib.dates as mdates
@@ -45,15 +45,24 @@ start = time.time()
 # y2=mload(os.path.join(equipment_file_location,'Equipment2.mlog'))
 # y2.update()
 
-Ei=lambda i:'Equipment{0}'.format(i)
-for i in range(1,5):
-    x=Equipment(Ei(i))
-    x.AddFileFromDirectory(os.path.join(os.getcwd(),'MineLog/datagenerator_output'))
-    x.update()
-    x.save(equipment_file_location)
+# Ei=lambda i:'Equipment{0}'.format(i)
+# for i in range(1,5):
+#     x=Equipment(Ei(i))
+#     x.AddFileFromDirectory(os.path.join(os.getcwd(),'MineLog/datagenerator_output'))
+#     x.update()
+#     x.save(equipment_file_location)
 
-# y3=mload(os.path.join(equipment_file_location,'Equipment1.mlog'))
-# y3.update()
+y3=mload(os.path.join(equipment_file_location,'Equipment1.mlog'))
+y3.update()
+
+# g=y3.Data
+# g=g.drop(['EType','data'],axis=1)
+# for i in g: print(i)
+print(get_tframe(y3,'weekly'))
+# k=get_tframe(y3,'nothing').groupby(['year','month'])
+# m=k[['Utilization','Availability']].mean()
+# for i in m.index:
+#     print(i)
 
 # y4=mload(os.path.join(equipment_file_location,'Equipment2.mlog'))
 # y4.update()

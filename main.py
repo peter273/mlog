@@ -41,8 +41,9 @@ class EqItemGui:
             Date=str(i.Data.iloc[ctr].Date.date())
             Shift=i.Data.iloc[ctr].Shift
             param=[str(getattr(i.Data.iloc[ctr],temp)) for temp in attributes]
-            shift_item=QtGui.QTreeWidgetItem(eq_item,[Date+" Shift "+Shift,
-                *param])
+            _ktemp= [Date+"Shift "+Shift]
+            _ktemp.extend(param)
+            shift_item=QtGui.QTreeWidgetItem(eq_item,_ktemp)
         return eq_item
     def get_all_data(self):
         data={'shiftly':None,
@@ -66,8 +67,9 @@ class EqItemGui:
             for ctr in range(len(Data)):
                 Date=str(Data.iloc[ctr].name.date())
                 param=[str(getattr(Data.iloc[ctr],temp)) for temp in attributes]
-                shift_item=QtGui.QTreeWidgetItem(eq_item,[Date,
-                    *param])
+                _ktemp=[Data]
+                _ktemp.extend(param)
+                shift_item=QtGui.QTreeWidgetItem(eq_item,_ktemp)
         return eq_item
 
 
