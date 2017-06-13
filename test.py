@@ -17,12 +17,12 @@ from matplotlib import pyplot as plt
 equipment_file_location=os.path.join(os.getcwd(),'Equipment')
 
 start = time.time()
-# for i in range(1,16):
-#     x=Equipment("Equipment{0}".format(i))
-#     x.AddFileFromDirectory(os.path.join(os.getcwd(),'MineLog/datagenerator_output'))
-#     x.update()
-#     x.save(equipment_file_location)
-# print(len(x.Data))
+for i in range(1,6):
+    x=Equipment("Equipment{0}".format(i))
+    x.AddFileFromDirectory(os.path.join(os.getcwd(),'MineLog/datagenerator_output'))
+    x.update()
+    x.save(equipment_file_location)
+print(len(x.Data))
 
 
 # x=Equipment("Equipment1")
@@ -52,13 +52,15 @@ start = time.time()
 #     x.update()
 #     x.save(equipment_file_location)
 
-y3=mload(os.path.join(equipment_file_location,'Equipment1.mlog'))
-y3.update()
+# y3=mload(os.path.join(equipment_file_location,'Equipment1.mlog'))
+# y3.update()
+
+# print(get_tframe(y3,'weekly'))
 
 # g=y3.Data
 # g=g.drop(['EType','data'],axis=1)
 # for i in g: print(i)
-print(get_tframe(y3,'weekly'))
+# print(get_tframe(y3,'weekly'))
 # k=get_tframe(y3,'nothing').groupby(['year','month'])
 # m=k[['Utilization','Availability']].mean()
 # for i in m.index:

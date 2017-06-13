@@ -4,9 +4,9 @@ import sys
 import os
 from random import choice 
 from random import randrange
-def GenerateTestData(Equipment,Date,Shift,activities_no,Type="Shovel"):
+def GenerateTestData(Equipment,Date,Shift,activities_no,Type="Truck"):
 
-    out0 = '"Equipment",'+'"{0}"'.format(str(Equipment))+"\n"
+    out0 = '"TestEquipment",'+'"{0}"'.format(str(Equipment))+"\n"
     out0+= '"Type",'+'"{0}"'.format(Type)+"\n"
     out0+= '"Date",'+ '"{0}"'.format(str(Date))+"\n" 
 
@@ -22,9 +22,9 @@ def GenerateTestData(Equipment,Date,Shift,activities_no,Type="Shovel"):
     for i in range(2,activities_no+1):
         out.append([choice(atype),
             '"Activity {0}"'.format(str(i)),
-            out[i-1][2]+randrange(6,12),
+            out[i-1][2]+randrange(1400000,1440000),
             '"operator"'])
-    out.append(['"E"','"EndShift"',out[-1][2]+randrange(6,28),'"operator"'])
+    out.append(['"E"','"EndShift"',out[-1][2]+randrange(1400000,1440000),'"operator"'])
 
     for i in out:
         i[2] = '"{0}"'.format(i[2])
@@ -57,7 +57,7 @@ def GenerateCsvs(a,b,c=100,Foldername="datagenerator_output"):
                 else:
                     dmonth=date.month
                 dateoutput="{0}{1}{2}".format(date.year,dmonth,date.day)
-                with open("Equipment"+str(i)+"_"+dateoutput+"_Shift"+str(shift)+".txt","w") as f:
+                with open("TestEquipment"+str(i)+"_"+dateoutput+"_Shift"+str(shift)+".txt","w") as f:
                     f.write(GenerateTestData(i,dateoutput,shift,c))
 
     os.chdir(original_dir)

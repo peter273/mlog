@@ -14,6 +14,7 @@ import pandas
 import os
 
 
+
 #New Equipment Dialog
 from mlogUI.neweqdialog import Ui_Dialog
 class NewEqDialog(QtGui.QDialog,Ui_Dialog):
@@ -41,8 +42,9 @@ class EqItemGui:
             Date=str(i.Data.iloc[ctr].Date.date())
             Shift=i.Data.iloc[ctr].Shift
             param=[str(getattr(i.Data.iloc[ctr],temp)) for temp in attributes]
-            shift_item=QtGui.QTreeWidgetItem(eq_item,[Date+" Shift "+Shift,
-                *param])
+            _ktemp= [Date+"Shift "+Shift]
+            _ktemp.extend(param)
+            shift_item=QtGui.QTreeWidgetItem(eq_item,_ktemp)
         return eq_item
     def get_all_data(self):
         data={'shiftly':None,
@@ -66,8 +68,60 @@ class EqItemGui:
             for ctr in range(len(Data)):
                 Date=str(Data.iloc[ctr].name.date())
                 param=[str(getattr(Data.iloc[ctr],temp)) for temp in attributes]
-                shift_item=QtGui.QTreeWidgetItem(eq_item,[Date,
-                    *param])
+                _ktemp=[Date]
+                _ktemp.extend(param)
+                shift_item=QtGui.QTreeWidgetItem(eq_item,_ktemp)
+        return eq_item
+class EqItemGui2:
+    def __init__(self,eq):
+        self.eq=eq
+        self.eq_gui=self.get_all_data()
+    def get_eq_gui(self):
+        i=self.eq
+        eq_item=[i.Name]
+        attributes=["OEE",
+                "Availability",
+                "Utilization",
+                "Efficiency",
+                "totaltime"]
+
+        eq_item_children=[]
+        for ctr in range(len(i.Data)):
+            Date=str(i.Data.iloc[ctr].Date.date())
+            Shift=i.Data.iloc[ctr].Shift
+            param=[str(getattr(i.Data.iloc[ctr],temp)) for temp in attributes]
+            _ktemp= [Date+"Shift "+Shift]
+            _ktemp.extend(param)
+            eq_item_children.append(_ktemp)
+        eq_item.append(eq_item_children)
+        return eq_item
+    def get_all_data(self):
+        data={'shiftly':None,
+                'daily':None,
+                'weekly':None,
+                'monthly':None}
+        for i in data:
+            data[i]=self.get_eqgui_data(i)
+        return data
+    def get_eqgui_data(self,data_frame):
+        if data_frame=="shiftly":
+            return self.get_eq_gui()
+        eq_item=["{0} ({1})".format(self.eq.Name,data_frame)]
+        attributes=["OEE",
+                "Availability",
+                "Utilization",
+                "Efficiency",
+                "totaltime", ]
+        eq_item_children=[]
+        if len(self.eq.Data):
+            Data=get_tframe(self.eq,data_frame)
+            for ctr in range(len(Data)):
+                Date=str(Data.iloc[ctr].name.date())
+                param=[str(getattr(Data.iloc[ctr],temp)) for temp in attributes]
+                _ktemp=[Date]
+                _ktemp.extend(param)
+                eq_item_children.append(_ktemp)
+        eq_item.append(eq_item_children)
         return eq_item
 
 
@@ -98,15 +152,29 @@ class MainUI(mwindow.Ui_MainWindow):
         self.truck_listwidget.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
         self.truck_listwidget.itemSelectionChanged.connect(self.itemSelectionChanged)
 
+        self.eq_treeView.setSelectionMode(QtGui.QAbstractItemView.ExtendedSelection)
+        self.eq_treeView.entered.connect(self.slot)
+        self.eq_treeView.entered.connect(self.slot)
+
         self.ma_checkbox.stateChanged.connect(self.maspinner_changestate)
         self.ma_spinBox.setEnabled(False)
         self.get_initial_equipment_list()
+        # self.get_initial_equipment_list1()
+        self.get_initial_equipment_list2()
 
         self.shift_rb.toggled.connect(lambda:self.bntstate(self.shift_rb))
         self.day_rb.toggled.connect(lambda:self.bntstate(self.day_rb))
         self.week_rb.toggled.connect(lambda:self.bntstate(self.week_rb))
         self.month_rb.toggled.connect(lambda:self.bntstate(self.month_rb))
         self.display_headers()
+    def slot(self,item):
+        parents = set()
+        for index in self.eq_treeView.selectedIndexes():
+            while index.parent().isValid():
+                index = index.parent()
+            parents.add(index.sibling(index.row(), 0))
+        # print([index.data() for index in sorted(parents)])
+
 
     def bntstate(self,b):
         if b.isChecked():
@@ -203,6 +271,94 @@ class MainUI(mwindow.Ui_MainWindow):
 
             listwidget.addItem(eq_item)
         listwidget.repaint()
+
+    def view_addItem(self,parent,children):
+        for child,subchildren in children:
+            item = QtGui.QStandardItem(child)
+            parent.appendRow(item)
+            for i in subchildren:
+                _temp=[]
+                for j in i:
+                    k=QtGui.QStandardItem(str(j))
+                    _temp.append(k)
+                item.appendRow(_temp)
+
+    def get_initial_equipment_list2(self):
+        dirpath=os.path.dirname(__file__)
+        filepath = os.path.join(dirpath,'Equipment')
+        eq_filenames = [i for i in os.listdir(filepath) if i.endswith(".mlog")]
+        eq_list=[]
+
+        eq_treeView=self.data_treeView
+
+        # items to add in model
+        eq_item=dict()
+        eq_item2=[]
+        for i in eq_filenames:
+            eq=mload(os.path.join(filepath,i))
+            eq_item[eq.Name]=EqItemGui2(eq)
+        for i in eq_item:
+            temp_=eq_item[i].eq_gui
+            for k in temp_:
+                eq_item2.append(temp_[k])
+        # eq_item3=[['E1',[[1,2,3,4,5,6],[2,4,5,6,7,8],[3,4,5,8,9,7]]]]
+
+        # item model 
+        eq_display_model=QtGui.QStandardItemModel()
+        self.view_addItem(eq_display_model,eq_item2)
+        eq_display_model.setHorizontalHeaderLabels(
+                ["Name","OEE",
+                "Availability",
+                "Utilization",
+                "Efficiency",
+                "totaltime"])
+
+        # filter proxy model
+        filter_proxy_model = QtGui.QSortFilterProxyModel()
+        filter_proxy_model.setSourceModel(eq_display_model)
+
+        eq_treeView.setModel(filter_proxy_model)
+        # eq_treeView.expandAll()
+
+        # eq_treeView.setRowHidden(0,eq_display_model.invisibleRootItem().index(),True)
+
+
+    def get_initial_equipment_list1(self):
+        dirpath=os.path.dirname(__file__)
+        filepath = os.path.join(dirpath,'Equipment')
+        eq_filenames = [i for i in os.listdir(filepath) if i.endswith(".mlog")]
+        eq_list=[]
+
+        eq_treeView=self.eq_treeView
+
+        # item model 
+        eq_display_model=QtGui.QStandardItemModel()
+        # self.view_addItem(eq_display_model,eq_item2)
+        eq_display_model.setHorizontalHeaderLabels(
+                ['Equipment','Type'])
+
+        eq_temp_EquipmentList=[]
+        for i in eq_filenames:
+            eql=mload(os.path.join(filepath,i))
+            eq_temp_EquipmentList.append(eql)
+        for eq in sorted(eq_temp_EquipmentList,
+                key=lambda k:k.Name):
+            item_name=QtGui.QStandardItem(eq.Name)
+            item_type=QtGui.QStandardItem(eq.Type)
+            eq_display_model.appendRow([item_name,item_type])
+
+
+        # filter proxy model
+        filter_proxy_model = QtGui.QSortFilterProxyModel()
+        filter_proxy_model.setSourceModel(eq_display_model)
+        filter_proxy_model.setFilterKeyColumn(1)
+
+        # line edit for filtering
+        line_edit = self.eqfilter_lineEdit
+        line_edit.textChanged.connect(filter_proxy_model.setFilterRegExp)
+
+        eq_treeView.setModel(filter_proxy_model)
+
 
 class MineLog(QtGui.QMainWindow):
     def __init__(self,parent=None):
